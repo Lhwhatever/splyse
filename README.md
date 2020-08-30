@@ -10,3 +10,8 @@ The development server can be run using
 ```
 yarn dev
 ```
+
+Note that to use the Spotify endpoints, you should set up the following in `/etc/hosts`:
+```
+127.0.0.1 to.localhost
+```
