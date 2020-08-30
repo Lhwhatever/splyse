@@ -9,6 +9,11 @@ export default class Document extends NextDocument {
             <Html lang="en">
                 <Head>
                     <meta name="theme-color" content={theme.palette.primary.main} />
+                    <style
+                        dangerouslySetInnerHTML={{
+                            __html: `@font-face{font-family:Circular;src:url(https://sp-bootstrap.global.ssl.fastly.net/8.0.0/fonts/circular-bold.woff2) format('woff2'),url(https://sp-bootstrap.global.ssl.fastly.net/8.0.0/fonts/circular-bold.woff) format('woff');font-weight:700;font-style:normal}`,
+                        }}
+                    />
                     <link
                         rel="stylesheet"
                         href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
