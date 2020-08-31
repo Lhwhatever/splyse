@@ -11,12 +11,12 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     const storedState = req.headers && req.headers.cookie ? cookie.parse(req.headers.cookie)[stateKey] : null;
 
     if (state === null || state !== storedState) {
-        res.redirect('/#' + querystring.stringify({ error: 'state_mismatch' }));
+        res.redirect('/?' + querystring.stringify({ error: 'state_mismatch' }));
         return;
     }
 
     if (code === null) {
-        res.redirect('/#' + querystring.stringify({ error: req.query.error }));
+        res.redirect('/?' + querystring.stringify({ error: req.query.error }));
         return;
     }
 
@@ -46,13 +46,13 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         }
 
         res.redirect(
-            '/#' +
+            '/?' +
                 querystring.stringify({
                     access_token: response.data.access_token,
                     refresh_token: response.data.refresh_token,
                 })
         );
     } catch (error) {
-        res.redirect('/#' + querystring.stringify({ error: 'invalid_token' }));
+        res.redirect('/?' + querystring.stringify({ error: 'invalid_token' }));
     }
 };
