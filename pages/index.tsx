@@ -1,7 +1,8 @@
-import { Box, Container, Link, Paper, SvgIcon, Typography } from '@material-ui/core';
+import { Box, Container, Paper, Typography } from '@material-ui/core';
 import Alert, { AlertState } from 'components/Alert';
 import ContentHeader from 'components/ContentHeader';
-import { SpotifyAvatar, SpotifyConnectButton } from 'components/Spotify';
+import { SpotifyConnectButton } from 'components/Spotify';
+import User from 'components/User';
 import { useRouter } from 'next/dist/client/router';
 import React from 'react';
 import { handleAuthError, handleAuthSuccess } from 'utils/auth';
@@ -32,24 +33,15 @@ export default function Home(): JSX.Element {
         <Container>
             <Box my={1}>
                 <ContentHeader />
-                {connection ? (
-                    <Box py={2} display="flex">
-                        <Typography variant="body1">Logged in as </Typography>
-                        <Box mx="0.5rem">
-                            <SpotifyAvatar
-                                url={userProfile?.images.length ? userProfile?.images[0].url : undefined}
-                                sideLength={24}
-                            />
+                <Box py={2} display="flex" flexDirection="column">
+                    {connection ? (
+                        <User userProfile={userProfile!} />
+                    ) : (
+                        <Box alignSelf="center">
+                            <SpotifyConnectButton />
                         </Box>
-                        <Link href={userProfile?.external_urls.spotify} variant="body1" target="_blank">
-                            {userProfile?.display_name}
-                        </Link>
-                    </Box>
-                ) : (
-                    <Box py={2} display="flex" justifyContent="center">
-                        <SpotifyConnectButton />
-                    </Box>
-                )}
+                    )}
+                </Box>
                 <Paper>
                     <Box p={2}>
                         <Typography variant="h5">Manage Songs</Typography>
