@@ -15,7 +15,8 @@ export default (_: NextApiRequest, res: NextApiResponse): void => {
         scope,
         state,
         redirect_uri: redirectUri,
-    } as Record<string, string>;
+        show_dialog: true,
+    } as Record<string, string | boolean>;
 
     res.redirect(`https://accounts.spotify.com/authorize?${querystring.stringify(query)}`);
 };

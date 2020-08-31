@@ -1,4 +1,4 @@
-import { Box, Container, Paper, Typography } from '@material-ui/core';
+import { Box, CircularProgress, Container, Paper, Typography } from '@material-ui/core';
 import Alert, { AlertState } from 'components/Alert';
 import ContentHeader from 'components/ContentHeader';
 import { SpotifyConnectButton } from 'components/Spotify';
@@ -30,16 +30,26 @@ export default function Home(): JSX.Element {
         setAlert(null);
     };
 
+    const handleLogout = () => {
+        setConnection(null);
+        setUserProfile(null);
+        router.push('/');
+        setAlert({
+            severity: 'success',
+            message: 'Logged out.',
+        });
+    };
+
     return (
         <Container>
             <Box my={1}>
                 <ContentHeader />
                 <Box py={2} display="flex" flexDirection="column">
-                    {connection ? (
-                        <User userProfile={userProfile!} />
+                    {userProfile ? (
+                        <User userProfile={userProfile!} onLogout={handleLogout} />
                     ) : (
                         <Box alignSelf="center">
-                            <SpotifyConnectButton />
+                            {connection === null ? <SpotifyConnectButton /> : <CircularProgress />}
                         </Box>
                     )}
                 </Box>
