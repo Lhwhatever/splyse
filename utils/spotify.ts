@@ -58,7 +58,7 @@ export default class SpotifyConnection {
      * @param _accessToken
      * @param refreshToken
      */
-    public constructor(private _accessToken: string, public readonly refreshToken: string) {}
+    private constructor(private _accessToken: string, public readonly refreshToken: string) {}
 
     /**
      * Instantiates SpotifyConnection with the given tokens and verifies

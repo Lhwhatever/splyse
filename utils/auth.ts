@@ -6,7 +6,7 @@ const errorMessages = {
     invalid_token: 'Authorization with Spotify failed.',
 } as Record<string, string>;
 
-export function handleAuthError(errorCode: unknown, handleAlertChange: (state: AlertState) => void) {
+export function handleAuthError(errorCode: unknown, handleAlertChange: (state: AlertState) => void): void {
     handleAlertChange({
         severity: 'error',
         message:
@@ -16,34 +16,48 @@ export function handleAuthError(errorCode: unknown, handleAlertChange: (state: A
     });
 }
 
-export async function handleAuthSuccess(
-    connection: SpotifyConnection,
-    handleAlertChange: (state: AlertState) => void,
-    handleConnectionState: (connection: SpotifyConnection | null) => void,
-    handleUserProfileData: (profile: UserProfile) => void,
-    handleAccessTokenChange: (newAccessToken: string) => void
-) {
-    let userProfile: UserProfile;
+export interface VerifyAuthTokensOptions {
+    accessToken: string;
+    refreshToken: string;
+    onNewAlert: (state: AlertState) => void;
+    onConnectionVerification: (connection: SpotifyConnection | null) => void;
+    onGettingUserProfile: (profile: UserProfile) => void;
+    onAccessTokenChange: (newToken: string) => void;
+}
+
+export async function verifyAuthTokens(options: VerifyAuthTokensOptions): Promise<void> {
+    const {
+        accessToken,
+        refreshToken,
+        onNewAlert,
+        onGettingUserProfile,
+        onAccessTokenChange,
+        onConnectionVerification,
+    } = options;
+
+    const handleGettingUserProfile = (userProfile: UserProfile) => {
+        onGettingUserProfile(userProfile);
+        onNewAlert({
+            severity: 'success',
+            message: `Successfully connected to ${userProfile.display_name}'s Spotify profile.`,
+        });
+    };
 
     try {
-        userProfile = await connection.verify(handleAccessTokenChange);
-    } catch (errorCode) {
-        handleConnectionState(null);
-        if (errorCode === 400) {
-            handleAuthError('invalid_token', handleAlertChange);
-        } else {
-            handleAuthError(
-                typeof errorCode === 'number' ? `HTTP response ${errorCode}` : errorCode,
-                handleAlertChange
-            );
-        }
-        return;
-    }
+        const connection = await SpotifyConnection.establish({
+            accessToken,
+            refreshToken,
+            onGettingUserProfile: handleGettingUserProfile,
+            onAccessTokenChange,
+        });
 
-    handleConnectionState(connection);
-    handleUserProfileData(userProfile);
-    handleAlertChange({
-        severity: 'success',
-        message: `Successfully connected to ${userProfile.display_name}'s Spotify profile.`,
-    });
+        onConnectionVerification(connection);
+    } catch (errorCode) {
+        onConnectionVerification(null);
+        if (errorCode === 400) {
+            handleAuthError('invalid_token', onNewAlert);
+        } else {
+            handleAuthError(typeof errorCode === 'number' ? `HTTP response ${errorCode}` : errorCode, onNewAlert);
+        }
+    }
 }
