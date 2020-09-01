@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import querystring from 'querystring';
 
 const apiHost = 'https://api.spotify.com';
@@ -30,8 +30,61 @@ export interface UserProfile {
     uri: string;
 }
 
+interface EstablishOptions {
+    accessToken: string;
+    refreshToken: string;
+
+    /**
+     * An optional callback to be run if the user profile is successfully
+     * gotten.
+     */
+    onGettingUserProfile?: (profile: UserProfile) => void;
+
+    /**
+     * An optional callback to be run if the access token changed.
+     */
+    onAccessTokenChange?: (newToken: string) => void;
+}
+
+/**
+ * Represents an authorized connection to a user's Spotify account, with the
+ * ability to refresh its access token if it has expired. It can use Spotify's
+ * RESTful API to fetch information about the user and music on Spotify's
+ * database.
+ */
 export default class SpotifyConnection {
-    public constructor(public accessToken: string, public refreshToken: string) {}
+    /**
+     * Instantiates SpotifyConnection. There is no immediate
+     * @param _accessToken
+     * @param refreshToken
+     */
+    public constructor(private _accessToken: string, public readonly refreshToken: string) {}
+
+    /**
+     * Instantiates SpotifyConnection with the given tokens and verifies
+     * whether the tokens work.
+     *
+     * @param options An object containing the inputs to try establishing the
+     * connection with.
+     * @returns A Promise of the SpotifyConnection. Rejects if there was an
+     * error establishing the connection, e.g. HTTP 401 for invalid tokens.
+     */
+    static async establish(options: EstablishOptions): Promise<SpotifyConnection> {
+        const {
+            accessToken,
+            refreshToken,
+            onGettingUserProfile = () => undefined,
+            onAccessTokenChange = () => undefined,
+        } = options;
+
+        const connection = new SpotifyConnection(accessToken, refreshToken);
+        onGettingUserProfile(await connection.verify(onAccessTokenChange));
+        return connection;
+    }
+
+    public get accessToken(): string {
+        return this._accessToken;
+    }
 
     protected async fetch(endpoint: string, config: FetchConfig = {}): Promise<FetchResult> {
         const headers = { ...config.headers, Authorization: `Bearer ${this.accessToken}` };
@@ -66,7 +119,7 @@ export default class SpotifyConnection {
 
                 // Successfully got refresh token
                 if (response.status === 200) {
-                    this.accessToken = response.data.access_token;
+                    this._accessToken = response.data.access_token;
                     onAccessTokenChange(this.accessToken);
                     return await this.getUserProfile();
                 }
