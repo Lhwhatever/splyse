@@ -96,15 +96,29 @@ export default class SpotifyConnection {
         return this.fetch(endpoint, { ...config, method: 'get' });
     }
 
-    public async getUserProfile(): Promise<UserProfile> {
+    /**
+     * Gets the user's profile from Spotify's API.
+     *
+     * @returns A Promise of the user's profile. Rejects on HTTP failure
+     * statuses.
+     */
+    public async fetchUserProfile(): Promise<UserProfile> {
         const { data, status } = await this.get('/me');
         if (status !== 200) throw status;
         return data as UserProfile;
     }
 
+    /**
+     * Verifies that the tokens supplied allows you to access a Spotify user's
+     * profile. If the access token is invalid/expired, it will try to obtain a
+     * new one using the refresh token.
+     *
+     * @returns A Promise of the user's profile. Rejects if the tokens given
+     * are invalid, with the corresponding HTTP status.
+     */
     public async verify(onAccessTokenChange: (newToken: string) => void): Promise<UserProfile> {
         try {
-            return await this.getUserProfile();
+            return await this.fetchUserProfile();
         } catch (error) {
             // Authorization failed, try getting a refresh token
             if (error.isAxiosError && error.response.status === 401) {
@@ -121,7 +135,7 @@ export default class SpotifyConnection {
                 if (response.status === 200) {
                     this._accessToken = response.data.access_token;
                     onAccessTokenChange(this.accessToken);
-                    return await this.getUserProfile();
+                    return await this.fetchUserProfile();
                 }
 
                 throw response.status;
