@@ -1,6 +1,7 @@
-import { Box, CircularProgress, Container, Paper, Typography } from '@material-ui/core';
+import { Box, CircularProgress, Container } from '@material-ui/core';
 import Alert, { AlertState } from 'components/Alert';
 import ContentHeader from 'components/ContentHeader';
+import SongManager from 'components/SongManager';
 import { SpotifyConnectButton } from 'components/Spotify';
 import User from 'components/User';
 import { useRouter } from 'next/dist/client/router';
@@ -64,11 +65,7 @@ export default function Home(): JSX.Element {
                         </Box>
                     )}
                 </Box>
-                <Paper>
-                    <Box p={2}>
-                        <Typography variant="h5">Manage Songs</Typography>
-                    </Box>
-                </Paper>
+                {connection && <SongManager connection={connection} />}
             </Box>
             <Alert state={alert} autoHideDuration={6000} onClose={handleAlertClose} />
         </Container>
