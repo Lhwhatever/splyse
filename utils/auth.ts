@@ -1,5 +1,5 @@
 import { AlertState } from 'components/Alert';
-import SpotifyConnection, { UserProfile } from './spotify';
+import SpotifyConnection, { UserProfile } from 'classes/SpotifyConnection';
 
 const errorMessages = {
     access_denied: 'Access to Spotify was denied.',

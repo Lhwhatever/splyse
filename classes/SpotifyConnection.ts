@@ -1,4 +1,5 @@
 import axios, { AxiosRequestConfig } from 'axios';
+import Paged, { Playlist, SpotifyPage } from 'classes/Paged';
 import querystring from 'querystring';
 
 const apiHost = 'https://api.spotify.com';
@@ -8,8 +9,8 @@ const apiRoot = `${apiHost}/${apiVersion}`;
 export type FetchConfig = Omit<AxiosRequestConfig, 'url'>;
 export type MethodConfig = Omit<FetchConfig, 'method'>;
 
-export interface FetchResult {
-    data: unknown;
+export interface FetchResult<T = unknown> {
+    data: T;
     status: number;
 }
 
@@ -86,26 +87,26 @@ export default class SpotifyConnection {
         return this._accessToken;
     }
 
-    protected async fetch(endpoint: string, config: FetchConfig = {}): Promise<FetchResult> {
+    protected async fetch<T>(endpoint: string, config: FetchConfig = {}): Promise<FetchResult<T>> {
         const headers = { ...config.headers, Authorization: `Bearer ${this.accessToken}` };
         const { data, status } = await axios(apiRoot + endpoint, { ...config, headers });
         return { data, status };
     }
 
-    protected async get(endpoint: string, config: MethodConfig = {}): Promise<FetchResult> {
+    protected async get<T>(endpoint: string, config: MethodConfig = {}): Promise<FetchResult<T>> {
         return this.fetch(endpoint, { ...config, method: 'get' });
     }
 
     /**
-     * Gets the user's profile from Spotify's API.
+     * Gets the user's profile from Spotify's database.
      *
      * @returns A Promise of the user's profile. Rejects on HTTP failure
      * statuses.
      */
     public async fetchUserProfile(): Promise<UserProfile> {
-        const { data, status } = await this.get('/me');
+        const { data, status } = await this.get<UserProfile>('/me');
         if (status !== 200) throw status;
-        return data as UserProfile;
+        return data;
     }
 
     /**
@@ -143,5 +144,21 @@ export default class SpotifyConnection {
 
             throw error;
         }
+    }
+
+    /**
+     * Gets the user's playlists from Spotify's database.
+     *
+     * @returns A Paged container of the user's playlists.
+     */
+    public async fetchUserPlaylists(perPage = 50): Promise<Paged<Playlist>> {
+        const fetcher = async (limit: number, offset: number) =>
+            (
+                await this.get<SpotifyPage<Playlist>>('/me/playlists', {
+                    params: { limit, offset },
+                })
+            ).data;
+
+        return Paged.create(perPage, fetcher);
     }
 }

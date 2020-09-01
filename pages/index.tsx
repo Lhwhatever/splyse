@@ -7,7 +7,7 @@ import { useRouter } from 'next/dist/client/router';
 import querystring from 'querystring';
 import React from 'react';
 import { handleAuthError, verifyAuthTokens } from 'utils/auth';
-import SpotifyConnection, { UserProfile } from 'utils/spotify';
+import SpotifyConnection, { UserProfile } from 'classes/SpotifyConnection';
 
 export default function Home(): JSX.Element {
     const [alert, setAlert] = React.useState<AlertState | null>(null);

@@ -1,6 +1,6 @@
 import { Box, IconButton, Link, Menu, MenuItem, Typography } from '@material-ui/core';
 import React from 'react';
-import { UserProfile } from 'utils/spotify';
+import { UserProfile } from 'classes/SpotifyConnection';
 import { SpotifyAvatar } from './Spotify';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 
