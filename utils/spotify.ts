@@ -49,7 +49,7 @@ export default class SpotifyConnection {
         return data as UserProfile;
     }
 
-    public async verify(): Promise<UserProfile> {
+    public async verify(onAccessTokenChange: (newToken: string) => void): Promise<UserProfile> {
         try {
             return await this.getUserProfile();
         } catch (error) {
@@ -67,7 +67,8 @@ export default class SpotifyConnection {
                 // Successfully got refresh token
                 if (response.status === 200) {
                     this.accessToken = response.data.access_token;
-                    return this.verify();
+                    onAccessTokenChange(this.accessToken);
+                    return await this.getUserProfile();
                 }
 
                 throw response.status;

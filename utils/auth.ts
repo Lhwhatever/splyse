@@ -20,12 +20,13 @@ export async function handleAuthSuccess(
     connection: SpotifyConnection,
     handleAlertChange: (state: AlertState) => void,
     handleConnectionState: (connection: SpotifyConnection | null) => void,
-    handleUserProfileData: (profile: UserProfile) => void
+    handleUserProfileData: (profile: UserProfile) => void,
+    handleAccessTokenChange: (newAccessToken: string) => void
 ) {
     let userProfile: UserProfile;
 
     try {
-        userProfile = await connection.getUserProfile();
+        userProfile = await connection.verify(handleAccessTokenChange);
     } catch (errorCode) {
         handleConnectionState(null);
         if (errorCode === 400) {

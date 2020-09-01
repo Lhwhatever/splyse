@@ -4,6 +4,7 @@ import ContentHeader from 'components/ContentHeader';
 import { SpotifyConnectButton } from 'components/Spotify';
 import User from 'components/User';
 import { useRouter } from 'next/dist/client/router';
+import querystring from 'querystring';
 import React from 'react';
 import { handleAuthError, handleAuthSuccess } from 'utils/auth';
 import SpotifyConnection, { UserProfile } from 'utils/spotify';
@@ -17,7 +18,15 @@ export default function Home(): JSX.Element {
     React.useEffect(() => {
         if (typeof router.query.access_token === 'string' && typeof router.query.refresh_token === 'string') {
             const connection = new SpotifyConnection(router.query.access_token, router.query.refresh_token);
-            handleAuthSuccess(connection, setAlert, setConnection, setUserProfile);
+            handleAuthSuccess(connection, setAlert, setConnection, setUserProfile, (newToken) => {
+                router.push(
+                    '/?' +
+                        querystring.stringify({
+                            access_token: newToken,
+                            refresh_token: connection.refreshToken,
+                        })
+                );
+            });
         } else if ('error' in router.query) {
             handleAuthError(router.query.error, setAlert);
             setConnection(null);
