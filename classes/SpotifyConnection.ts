@@ -36,13 +36,14 @@ interface EstablishOptions {
     refreshToken: string;
 
     /**
-     * An optional callback to be run if the user profile is successfully
-     * gotten.
+     * An optional callback to be run if the user profile is
+     * successfully gotten.
      */
     onGettingUserProfile?: (profile: UserProfile) => void;
 
     /**
-     * An optional callback to be run if the access token changed.
+     * An optional callback to be run whenever the access token
+     * changes.
      */
     onAccessTokenChange?: (newToken: string) => void;
 }
@@ -54,12 +55,11 @@ interface EstablishOptions {
  * database.
  */
 export default class SpotifyConnection {
-    /**
-     * Instantiates SpotifyConnection. There is no immediate
-     * @param _accessToken
-     * @param refreshToken
-     */
-    private constructor(private _accessToken: string, public readonly refreshToken: string) {}
+    private constructor(
+        private _accessToken: string,
+        public readonly refreshToken: string,
+        private readonly onAccessTokenChange: (newToken: string) => void
+    ) {}
 
     /**
      * Instantiates SpotifyConnection with the given tokens and verifies
@@ -70,7 +70,7 @@ export default class SpotifyConnection {
      * @returns A Promise of the SpotifyConnection. Rejects if there was an
      * error establishing the connection, e.g. HTTP 401 for invalid tokens.
      */
-    static async establish(options: EstablishOptions): Promise<SpotifyConnection> {
+    public static async establish(options: EstablishOptions): Promise<SpotifyConnection> {
         const {
             accessToken,
             refreshToken,
@@ -78,8 +78,8 @@ export default class SpotifyConnection {
             onAccessTokenChange = () => undefined,
         } = options;
 
-        const connection = new SpotifyConnection(accessToken, refreshToken);
-        onGettingUserProfile(await connection.verify(onAccessTokenChange));
+        const connection = new SpotifyConnection(accessToken, refreshToken, onAccessTokenChange);
+        onGettingUserProfile(await connection.fetchUserProfile());
         return connection;
     }
 
@@ -93,8 +93,39 @@ export default class SpotifyConnection {
         return { data, status };
     }
 
+    /**
+     * Attempts to refresh the connection with the given refresh token.
+     * Rejects with the Axios error if there is a failure.
+     *
+     * @returns A Promise of the new access token. _accessToken is
+     * automatically replaced with the new access token.
+     */
+    public async tryRefresh(): Promise<string> {
+        const response = await axios({
+            url:
+                '/api/refresh?' +
+                querystring.stringify({
+                    refresh_token: this.refreshToken,
+                }),
+            method: 'GET',
+        });
+
+        if (response.status !== 200) throw response;
+        this._accessToken = response.data.access_token;
+        return this.accessToken;
+    }
+
     protected async get<T>(endpoint: string, config: MethodConfig = {}): Promise<FetchResult<T>> {
-        return this.fetch(endpoint, { ...config, method: 'get' });
+        try {
+            return this.fetch(endpoint, { ...config, method: 'get' });
+        } catch (error) {
+            if (error.isAxiosError && error.response.status === 401) {
+                this.onAccessTokenChange(await this.tryRefresh());
+                return this.fetch(endpoint, { ...config, method: 'get' });
+            }
+
+            throw error;
+        }
     }
 
     /**
@@ -107,43 +138,6 @@ export default class SpotifyConnection {
         const { data, status } = await this.get<UserProfile>('/me');
         if (status !== 200) throw status;
         return data;
-    }
-
-    /**
-     * Verifies that the tokens supplied allows you to access a Spotify user's
-     * profile. If the access token is invalid/expired, it will try to obtain a
-     * new one using the refresh token.
-     *
-     * @returns A Promise of the user's profile. Rejects if the tokens given
-     * are invalid, with the corresponding HTTP status.
-     */
-    public async verify(onAccessTokenChange: (newToken: string) => void): Promise<UserProfile> {
-        try {
-            return await this.fetchUserProfile();
-        } catch (error) {
-            // Authorization failed, try getting a refresh token
-            if (error.isAxiosError && error.response.status === 401) {
-                const response = await axios({
-                    url:
-                        '/api/refresh?' +
-                        querystring.stringify({
-                            refresh_token: this.refreshToken,
-                        }),
-                    method: 'GET',
-                });
-
-                // Successfully got refresh token
-                if (response.status === 200) {
-                    this._accessToken = response.data.access_token;
-                    onAccessTokenChange(this.accessToken);
-                    return await this.fetchUserProfile();
-                }
-
-                throw response.status;
-            }
-
-            throw error;
-        }
     }
 
     /**
