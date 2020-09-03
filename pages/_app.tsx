@@ -2,6 +2,8 @@ import { CssBaseline, ThemeProvider } from '@material-ui/core';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import React from 'react';
+import { Provider } from 'react-redux';
+import store from 'store/store';
 import theme from 'theme';
 
 export default function App({ Component, pageProps }: AppProps): JSX.Element {
@@ -18,7 +20,9 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
             </Head>
             <ThemeProvider theme={theme}>
                 <CssBaseline />
-                <Component {...pageProps} />
+                <Provider store={store}>
+                    <Component {...pageProps} />
+                </Provider>
             </ThemeProvider>
         </React.Fragment>
     );
