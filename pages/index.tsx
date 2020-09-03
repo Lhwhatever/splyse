@@ -42,6 +42,16 @@ export default function Home(): JSX.Element {
         setAlert(null);
     };
 
+    const handleConnectionFailure = () => {
+        setConnection(null);
+        setUserProfile(null);
+        router.push('/');
+        setAlert({
+            severity: 'error',
+            message: 'The connection to Spotify failed. Try logging in again.',
+        });
+    };
+
     const handleLogout = () => {
         setConnection(null);
         setUserProfile(null);
@@ -65,7 +75,7 @@ export default function Home(): JSX.Element {
                         </Box>
                     )}
                 </Box>
-                {connection && <SongManager connection={connection} />}
+                {connection && <SongManager connection={connection} onConnectionFailure={handleConnectionFailure} />}
             </Box>
             <Alert state={alert} autoHideDuration={6000} onClose={handleAlertClose} />
         </Container>

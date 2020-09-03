@@ -6,22 +6,19 @@ import React from 'react';
 
 export interface SongManagerProps {
     connection: SpotifyConnection;
+    onConnectionFailure: () => void;
 }
 
 const SongManager = (props: SongManagerProps): JSX.Element => {
-    const { connection } = props;
+    const { connection, onConnectionFailure } = props;
 
     const handleImportPlaylists = async () => {
-        let playlists: Paged<Playlist>;
-
         try {
-            playlists = await connection.fetchUserPlaylists();
+            const playlists = await connection.fetchUserPlaylists();
+            console.log(playlists.fetchNext());
         } catch (error) {
-            console.log(error);
-            throw error;
+            onConnectionFailure();
         }
-
-        console.log(playlists.fetchNext());
     };
 
     return (
