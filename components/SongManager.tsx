@@ -1,7 +1,8 @@
 import { Box, Button, Paper, Typography } from '@material-ui/core';
-import Paged, { Playlist } from 'classes/Paged';
-import React from 'react';
+import Paged from 'classes/Paged';
 import SpotifyConnection from 'classes/SpotifyConnection';
+import { Playlist } from 'classes/SpotifyObjects';
+import React from 'react';
 
 export interface SongManagerProps {
     connection: SpotifyConnection;

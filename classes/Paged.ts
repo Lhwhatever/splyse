@@ -3,14 +3,6 @@ export interface SpotifyPage<E> {
     total: number;
 }
 
-export interface Playlist {
-    description: string;
-    href: string;
-    id: string;
-    name: string;
-    owner: string;
-}
-
 /**
  * This is a wrapper class to handle the paged objects emitted by Spotify's
  * API.

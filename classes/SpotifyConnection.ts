@@ -1,5 +1,6 @@
 import axios, { AxiosRequestConfig } from 'axios';
-import Paged, { Playlist, SpotifyPage } from 'classes/Paged';
+import Paged, { SpotifyPage } from 'classes/Paged';
+import { Playlist } from 'classes/SpotifyObjects';
 import querystring from 'querystring';
 
 const apiHost = 'https://api.spotify.com';
