@@ -3,6 +3,9 @@ import Paged from 'classes/Paged';
 import SpotifyConnection from 'classes/SpotifyConnection';
 import { Playlist } from 'classes/SpotifyObjects';
 import React from 'react';
+import { useDispatch } from 'react-redux';
+import { loadFirstPage } from 'store/ducks/ImportWizard';
+import ImportWizard from './ImportWizard';
 
 export interface SongManagerProps {
     connection: SpotifyConnection;
@@ -12,13 +15,24 @@ export interface SongManagerProps {
 const SongManager = (props: SongManagerProps): JSX.Element => {
     const { connection, onConnectionFailure } = props;
 
+    const [wizardOpen, setWizardOpen] = React.useState(false);
+    const [pagedPlaylists, setPagedPlaylists] = React.useState<Paged<Playlist> | undefined>(undefined);
+
+    const dispatch = useDispatch();
+
     const handleImportPlaylists = async () => {
+        setWizardOpen(true);
         try {
             const playlists = await connection.fetchUserPlaylists();
-            console.log(playlists.fetchNext());
+            setPagedPlaylists(playlists);
+            dispatch(loadFirstPage(await playlists.fetchNext()));
         } catch (error) {
             onConnectionFailure();
         }
+    };
+
+    const handleImportPlaylistWizardClose = () => {
+        setWizardOpen(false);
     };
 
     return (
@@ -28,6 +42,11 @@ const SongManager = (props: SongManagerProps): JSX.Element => {
                 <Button variant="contained" onClick={handleImportPlaylists}>
                     Import Playlists
                 </Button>
+                <ImportWizard
+                    open={wizardOpen}
+                    onClose={handleImportPlaylistWizardClose}
+                    pagedPlaylists={pagedPlaylists}
+                />
             </Box>
         </Paper>
     );
