@@ -1,5 +1,6 @@
 import { Box, CircularProgress, Container } from '@material-ui/core';
-import Alert, { AlertState } from 'components/Alert';
+import SpotifyConnection, { UserProfile } from 'classes/SpotifyConnection';
+import Alert from 'components/Alert';
 import ContentHeader from 'components/ContentHeader';
 import SongManager from 'components/SongManager';
 import { SpotifyConnectButton } from 'components/Spotify';
@@ -7,21 +8,27 @@ import User from 'components/User';
 import { useRouter } from 'next/dist/client/router';
 import querystring from 'querystring';
 import React from 'react';
+import { useDispatch } from 'react-redux';
+import { Alert as NonNullAlertState, setAlert } from 'store/ducks/alert';
 import { handleAuthError, verifyAuthTokens } from 'utils/auth';
-import SpotifyConnection, { UserProfile } from 'classes/SpotifyConnection';
 
 export default function Home(): JSX.Element {
-    const [alert, setAlert] = React.useState<AlertState | null>(null);
     const [connection, setConnection] = React.useState<SpotifyConnection | null | undefined>(undefined);
     const [userProfile, setUserProfile] = React.useState<UserProfile | null>(null);
     const router = useRouter();
+
+    const dispatch = useDispatch();
+
+    const dispatchAlert = (alert: NonNullAlertState) => {
+        dispatch(setAlert(alert));
+    };
 
     React.useEffect(() => {
         if (typeof router.query.access_token === 'string' && typeof router.query.refresh_token === 'string') {
             verifyAuthTokens({
                 accessToken: router.query.access_token,
                 refreshToken: router.query.refresh_token,
-                onNewAlert: setAlert,
+                onNewAlert: dispatchAlert,
                 onConnectionVerification: setConnection,
                 onGettingUserProfile: setUserProfile,
                 onAccessTokenChange: (newToken) =>
@@ -31,35 +38,25 @@ export default function Home(): JSX.Element {
                     ),
             });
         } else if ('error' in router.query) {
-            handleAuthError(router.query.error, setAlert);
+            handleAuthError(router.query.error, dispatchAlert);
             setConnection(null);
         } else {
             setConnection(null);
         }
-    }, [router]);
-
-    const handleAlertClose = () => {
-        setAlert(null);
-    };
+    }, [router, dispatch]);
 
     const handleConnectionFailure = () => {
         setConnection(null);
         setUserProfile(null);
         router.push('/');
-        setAlert({
-            severity: 'error',
-            message: 'The connection to Spotify failed. Try logging in again.',
-        });
+        dispatchAlert({ severity: 'error', message: 'The connection to Spotify failed. Try logging in again.' });
     };
 
     const handleLogout = () => {
         setConnection(null);
         setUserProfile(null);
         router.push('/');
-        setAlert({
-            severity: 'success',
-            message: 'Logged out.',
-        });
+        dispatchAlert({ severity: 'success', message: 'Logged out.' });
     };
 
     return (
@@ -77,7 +74,7 @@ export default function Home(): JSX.Element {
                 </Box>
                 {connection && <SongManager connection={connection} onConnectionFailure={handleConnectionFailure} />}
             </Box>
-            <Alert state={alert} autoHideDuration={6000} onClose={handleAlertClose} />
+            <Alert autoHideDuration={6000} />
         </Container>
     );
 }

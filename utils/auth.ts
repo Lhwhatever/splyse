@@ -1,4 +1,4 @@
-import { AlertState } from 'components/Alert';
+import { Alert } from 'store/ducks/alert';
 import SpotifyConnection, { UserProfile } from 'classes/SpotifyConnection';
 
 const errorMessages = {
@@ -6,7 +6,7 @@ const errorMessages = {
     invalid_token: 'Authorization with Spotify failed.',
 } as Record<string, string>;
 
-export function handleAuthError(errorCode: unknown, handleAlertChange: (state: AlertState) => void): void {
+export function handleAuthError(errorCode: unknown, handleAlertChange: (state: Alert) => void): void {
     handleAlertChange({
         severity: 'error',
         message:
@@ -19,7 +19,7 @@ export function handleAuthError(errorCode: unknown, handleAlertChange: (state: A
 export interface VerifyAuthTokensOptions {
     accessToken: string;
     refreshToken: string;
-    onNewAlert: (state: AlertState) => void;
+    onNewAlert: (state: Alert) => void;
     onConnectionVerification: (connection: SpotifyConnection | null) => void;
     onGettingUserProfile: (profile: UserProfile) => void;
     onAccessTokenChange: (newToken: string) => void;
