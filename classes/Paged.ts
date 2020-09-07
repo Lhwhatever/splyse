@@ -69,6 +69,7 @@ class Paged<E> {
     public async fetchNext(): Promise<E[]> {
         if (this._buffer) {
             const page = this._buffer;
+            this._cumulative += page.length;
             this._buffer = [];
             return page;
         }
