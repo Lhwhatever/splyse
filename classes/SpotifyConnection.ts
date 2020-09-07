@@ -7,7 +7,7 @@ const apiHost = 'https://api.spotify.com';
 const apiVersion = 'v1';
 const apiRoot = `${apiHost}/${apiVersion}`;
 
-export type FetchConfig = Omit<AxiosRequestConfig, 'url'>;
+export type FetchConfig = AxiosRequestConfig;
 export type MethodConfig = Omit<FetchConfig, 'method'>;
 
 export interface FetchResult<T = unknown> {
@@ -88,9 +88,9 @@ export default class SpotifyConnection {
         return this._accessToken;
     }
 
-    protected async fetch<T>(endpoint: string, config: FetchConfig = {}): Promise<FetchResult<T>> {
+    protected async fetch<T>(endpoint?: string, config: FetchConfig = {}): Promise<FetchResult<T>> {
         const headers = { ...config.headers, Authorization: `Bearer ${this.accessToken}` };
-        const { data, status } = await axios(apiRoot + endpoint, { ...config, headers });
+        const { data, status } = await axios({ ...config, headers, url: endpoint ? apiRoot + endpoint : config.url });
         return { data, status };
     }
 
@@ -116,7 +116,7 @@ export default class SpotifyConnection {
         return this.accessToken;
     }
 
-    protected async get<T>(endpoint: string, config: MethodConfig = {}): Promise<FetchResult<T>> {
+    protected async get<T>(endpoint?: string, config: MethodConfig = {}): Promise<FetchResult<T>> {
         try {
             return this.fetch(endpoint, { ...config, method: 'get' });
         } catch (error) {
