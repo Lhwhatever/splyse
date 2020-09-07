@@ -144,7 +144,8 @@ export default class SpotifyConnection {
     /**
      * Gets the user's playlists from Spotify's database.
      *
-     * @returns A Paged container of the user's playlists.
+     * @param perPage The number of playlists to fetch each page. Defaults to 50.
+     * @returns A Promise of a Paged container of the user's playlists.
      */
     public async fetchUserPlaylists(perPage = 50): Promise<Paged<Playlist>> {
         const fetcher = async (limit: number, offset: number) =>
