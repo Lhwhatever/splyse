@@ -45,7 +45,8 @@ const SongManager = (props: SongManagerProps): JSX.Element => {
                 <ImportWizard
                     open={wizardOpen}
                     onClose={handleImportPlaylistWizardClose}
-                    pagedPlaylists={pagedPlaylists}
+                    playlistContainer={pagedPlaylists}
+                    onConnectionFailure={onConnectionFailure}
                 />
             </Box>
         </Paper>

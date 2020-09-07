@@ -1,99 +1,54 @@
-import React from 'react';
-import {
-    Box,
-    Card,
-    CardActions,
-    CardContent,
-    CardHeader,
-    Checkbox,
-    IconButton,
-    Link,
-    makeStyles,
-    Typography,
-} from '@material-ui/core';
-import LinkIcon from '@material-ui/icons/Link';
-import { Playlist } from 'classes/SpotifyObjects';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from 'store/store';
+import { Box, Button } from '@material-ui/core';
+import FuzzySearch from 'fuzzy-search';
 import Paged from 'classes/Paged';
-import { selectPlaylist, StagedPlaylist } from 'store/ducks/ImportWizard';
-
-const useStyles = makeStyles((theme) => ({
-    loadMoreBtn: {
-        textTransform: 'uppercase',
-        textAlign: 'center',
-        padding: theme.spacing(1),
-        color: theme.palette.primary.main,
-        fontWeight: 'bold',
-    },
-    playlistCard: {
-        marginBottom: theme.spacing(1),
-        padding: theme.spacing(1),
-    },
-}));
-
-type PlaylistCardProps = StagedPlaylist & {
-    onSelect: (selected: boolean) => void;
-};
-
-const PlaylistCard = (props: PlaylistCardProps): JSX.Element => {
-    const { playlist, selected, onSelect } = props;
-
-    const classes = useStyles();
-
-    const handleSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-        onSelect(event.target.checked);
-    };
-
-    return (
-        <Card variant="outlined" className={classes.playlistCard}>
-            <Box display="flex" alignItems="center">
-                <Checkbox name={`select-playlist-${playlist.id}`} checked={selected} onChange={handleSelect} />
-                <div>
-                    <Typography variant="h5">{playlist.name}</Typography>
-                </div>
-            </Box>
-            <Box pl={3}>
-                <Typography variant="body2">
-                    Created by{' '}
-                    <Link href={playlist.owner.external_urls.spotify} target="_blank">
-                        {playlist.owner.display_name}
-                    </Link>
-                </Typography>
-                <Typography variant="body2">{playlist.tracks.total} songs</Typography>
-            </Box>
-            <CardActions disableSpacing>
-                <IconButton href={playlist.external_urls.spotify} target="_blank" aria-label="view in spotify">
-                    <LinkIcon />
-                </IconButton>
-            </CardActions>
-        </Card>
-    );
-};
+import { Playlist } from 'classes/SpotifyObjects';
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { loadNextPage, selectPlaylist } from 'store/ducks/ImportWizard';
+import { RootState } from 'store/store';
+import PlaylistCard from './PlaylistCard';
 
 export interface PlaylistsOverviewProps {
-    pagedPlaylists: Paged<Playlist>;
+    searchString?: string;
+    playlistContainer: Paged<Playlist>;
+    onConnectionFailure: () => void;
 }
 
 const PlaylistsOverview = (props: PlaylistsOverviewProps): JSX.Element => {
-    const { pagedPlaylists } = props;
-
-    const classes = useStyles();
+    const { searchString, playlistContainer, onConnectionFailure } = props;
 
     const { playlists } = useSelector((state: RootState) => state.importWizard);
     const dispatch = useDispatch();
 
-    return (
-        <Box display="flex" flexDirection="column" overflow="scroll">
-            {playlists &&
-                playlists.map((playlist, index) => {
-                    const handleSelection = (selected: boolean) => {
-                        dispatch(selectPlaylist(index, selected));
-                    };
+    const values = Object.values(playlists);
+    const itemsLeft = playlistContainer.length - values.length;
 
-                    return <PlaylistCard {...playlist} onSelect={handleSelection} key={index} />;
-                })}
-            <Box className={classes.loadMoreBtn}>Load more items</Box>
+    const searcher = new FuzzySearch(values, ['playlist.name', 'playlist.owner.display_name'], { sort: true });
+    const results = searchString === undefined ? values : searcher.search(searchString);
+
+    const handleLoadNextPage = () => {
+        dispatch(loadNextPage(playlistContainer, onConnectionFailure));
+    };
+
+    return (
+        <Box display="flex" flexDirection="column">
+            {results.length
+                ? results.map((playlist) => {
+                      const { uri } = playlist.playlist;
+                      const handleSelection = (selected: boolean) => {
+                          dispatch(selectPlaylist(uri, selected));
+                      };
+
+                      return <PlaylistCard {...playlist} onSelect={handleSelection} key={uri} />;
+                  })
+                : 'No results were found.'}
+            {itemsLeft > 0 && (
+                <Box display="flex" justifyContent="center">
+                    <Button color="primary" onClick={handleLoadNextPage}>
+                        Load {Math.min(itemsLeft, playlistContainer.perPage)} more ({itemsLeft} left)
+                    </Button>
+                </Box>
+            )}
         </Box>
     );
 };
