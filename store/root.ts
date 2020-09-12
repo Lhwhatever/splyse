@@ -1,10 +1,10 @@
 import { combineReducers } from 'redux';
-import importWizard from './ducks/ImportWizard';
+import importWizardReducer from './ducks/ImportWizard';
 import alertReducer from './ducks/alert';
 
 const rootReducer = combineReducers({
-    importWizard,
-    alertReducer,
+    importWizard: importWizardReducer,
+    alert: alertReducer,
 });
 
 export default rootReducer;

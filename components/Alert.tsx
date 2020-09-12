@@ -17,7 +17,7 @@ export interface AlertProps {
 const Alert = (props: AlertProps): JSX.Element => {
     const { ...other } = props;
 
-    const alertState = useSelector((state: RootState) => state.alertReducer);
+    const alertState = useSelector((state: RootState) => state.alert);
     const dispatch = useDispatch();
 
     const handleClose = () => {
