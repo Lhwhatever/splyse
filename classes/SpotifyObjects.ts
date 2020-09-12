@@ -21,3 +21,23 @@ export interface Playlist {
     type: 'playlist';
     uri: string;
 }
+
+export interface Artist {
+    external_urls: ExternalUrls;
+    href: string;
+    id: string;
+    uri: string;
+    name: string;
+    type: 'artist';
+}
+
+export interface Track {
+    duration_ms: number;
+    external_urls: ExternalUrls;
+    id: string;
+    uri: string;
+    name: string;
+    popularity: number;
+    artists: Artist[];
+    type: 'track';
+}
