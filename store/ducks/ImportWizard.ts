@@ -1,16 +1,15 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import Paged from 'classes/Paged';
-import { Playlist, Track } from 'classes/SpotifyObjects';
+import { Playlist } from 'classes/SpotifyObjects';
 import { AppThunk } from 'store/store';
 
-export interface StagedPlaylist {
+export interface ImportedPlaylist {
     playlist: Playlist;
     selected: boolean;
-    tracks?: Track[];
 }
 
 export interface WizardState {
-    playlists: Record<string, StagedPlaylist>;
+    playlists: Record<string, ImportedPlaylist>;
 }
 
 const initialState: WizardState = {
@@ -25,7 +24,7 @@ const slice = createSlice({
             prepare: (playlists: Playlist[]) => ({
                 payload: playlists.map((playlist) => ({ playlist, selected: false })),
             }),
-            reducer: (state, action: PayloadAction<StagedPlaylist[]>) => {
+            reducer: (state, action: PayloadAction<ImportedPlaylist[]>) => {
                 state.playlists = {};
                 action.payload.forEach((playlist) => {
                     state.playlists[playlist.playlist.uri] = playlist;
@@ -36,7 +35,7 @@ const slice = createSlice({
             prepare: (playlists: Playlist[]) => ({
                 payload: playlists.map((playlist) => ({ playlist, selected: false })),
             }),
-            reducer: (state, action: PayloadAction<StagedPlaylist[]>) => {
+            reducer: (state, action: PayloadAction<ImportedPlaylist[]>) => {
                 action.payload.forEach((playlist) => {
                     state.playlists[playlist.playlist.uri] = playlist;
                 });

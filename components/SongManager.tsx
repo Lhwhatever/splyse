@@ -16,7 +16,9 @@ const SongManager = (props: SongManagerProps): JSX.Element => {
     const { connection, onConnectionFailure } = props;
 
     const [wizardOpen, setWizardOpen] = React.useState(false);
-    const [pagedPlaylists, setPagedPlaylists] = React.useState<Paged<Playlist> | undefined>(undefined);
+    const [importedPlaylistContainer, setImportedPlaylistContainer] = React.useState<Paged<Playlist> | undefined>(
+        undefined
+    );
 
     const dispatch = useDispatch();
 
@@ -24,7 +26,7 @@ const SongManager = (props: SongManagerProps): JSX.Element => {
         setWizardOpen(true);
         try {
             const playlists = await connection.fetchUserPlaylists();
-            setPagedPlaylists(playlists);
+            setImportedPlaylistContainer(playlists);
             dispatch(loadFirstPage(await playlists.fetchNext()));
         } catch (error) {
             onConnectionFailure();
@@ -45,7 +47,7 @@ const SongManager = (props: SongManagerProps): JSX.Element => {
                 <ImportWizard
                     open={wizardOpen}
                     onClose={handleImportPlaylistWizardClose}
-                    playlistContainer={pagedPlaylists}
+                    playlistContainer={importedPlaylistContainer}
                     onConnectionFailure={onConnectionFailure}
                 />
             </Box>

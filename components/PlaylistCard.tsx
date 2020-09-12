@@ -17,7 +17,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Centered from './Centered';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import React from 'react';
-import { StagedPlaylist } from 'store/ducks/ImportWizard';
+import { ImportedPlaylist } from 'store/ducks/ImportWizard';
 import Paged from 'classes/Paged';
 import { Track } from 'classes/SpotifyObjects';
 import SpotifyConnection from 'classes/SpotifyConnection';
@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export type PlaylistCardProps = StagedPlaylist & {
+export type PlaylistCardProps = ImportedPlaylist & {
     onSelect: (selected: boolean) => void;
 };
 
