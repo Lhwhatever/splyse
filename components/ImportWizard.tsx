@@ -16,6 +16,7 @@ import { Playlist } from 'classes/SpotifyObjects';
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { loadAll } from 'store/ducks/ImportWizard';
+import { AppDispatch } from 'store/store';
 import Centered from './Centered';
 import ResponsiveWizardHeader from './dialog/ResponsiveWizardHeader';
 import PlaylistsOverview from './PlaylistsOverview';
@@ -41,7 +42,7 @@ const ImportWizard = (props: ImportWizardProps): JSX.Element => {
     const [isLoading, setLoadingState] = React.useState(false);
     const [searchString, setSearchString] = React.useState<string | undefined>(undefined);
 
-    const dispatch = useDispatch();
+    const dispatch: AppDispatch = useDispatch();
 
     const classes = useStyles();
 
@@ -58,7 +59,12 @@ const ImportWizard = (props: ImportWizardProps): JSX.Element => {
     const handleFocus = async () => {
         if (playlistContainer !== undefined) {
             setLoadingState(true);
-            dispatch(loadAll(playlistContainer, onConnectionFailure, () => setLoadingState(false)));
+            try {
+                await dispatch(loadAll(playlistContainer));
+                setLoadingState(false);
+            } catch (error) {
+                onConnectionFailure();
+            }
         }
     };
 

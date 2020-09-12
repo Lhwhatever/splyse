@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import Paged from 'classes/Paged';
 import { Playlist } from 'classes/SpotifyObjects';
-import { AppThunk } from 'store/store';
+import { AppThunk, ChainableThunk } from 'store/store';
 
 export interface ImportedPlaylist {
     playlist: Playlist;
@@ -56,27 +56,10 @@ export default slice.reducer;
 const { loadFirstPage, selectPlaylist, concatPage } = slice.actions;
 export { loadFirstPage, selectPlaylist };
 
-export const loadNextPage = (playlistContainer: Paged<Playlist>, onConnectionFailure: () => void): AppThunk => async (
-    dispatch
-) => {
-    try {
-        dispatch(concatPage(await playlistContainer.fetchNext()));
-    } catch (error) {
-        onConnectionFailure();
-        throw error;
-    }
+export const loadNextPage = (playlistContainer: Paged<Playlist>): ChainableThunk<ImportedPlaylist[]> => {
+    return async (dispatch) => dispatch(concatPage(await playlistContainer.fetchNext()));
 };
 
-export const loadAll = (
-    playlistContainer: Paged<Playlist>,
-    onConnectionFailure: () => void,
-    onSuccess: () => void = () => undefined
-): AppThunk<Promise<void>> => (dispatch) => {
-    return playlistContainer.fetchAll().then(
-        (playlists) => {
-            dispatch(concatPage(playlists));
-            onSuccess();
-        },
-        () => onConnectionFailure()
-    );
+export const loadAll = (playlistContainer: Paged<Playlist>): ChainableThunk<ImportedPlaylist[]> => {
+    return async (dispatch) => dispatch(concatPage(await playlistContainer.fetchAll()));
 };

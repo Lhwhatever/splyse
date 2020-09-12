@@ -1,11 +1,11 @@
 import { Box, Button } from '@material-ui/core';
-import FuzzySearch from 'fuzzy-search';
 import Paged from 'classes/Paged';
 import { Playlist } from 'classes/SpotifyObjects';
+import FuzzySearch from 'fuzzy-search';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { loadNextPage, selectPlaylist } from 'store/ducks/ImportWizard';
-import { RootState } from 'store/store';
+import { AppDispatch, RootState } from 'store/store';
 import PlaylistCard from './PlaylistCard';
 
 export interface PlaylistsOverviewProps {
@@ -18,7 +18,7 @@ const PlaylistsOverview = (props: PlaylistsOverviewProps): JSX.Element => {
     const { searchString, playlistContainer, onConnectionFailure } = props;
 
     const { playlists } = useSelector((state: RootState) => state.importWizard);
-    const dispatch = useDispatch();
+    const dispatch: AppDispatch = useDispatch();
 
     const values = Object.values(playlists);
     const itemsLeft = playlistContainer.length - values.length;
@@ -27,7 +27,11 @@ const PlaylistsOverview = (props: PlaylistsOverviewProps): JSX.Element => {
     const results = searchString === undefined ? values : searcher.search(searchString);
 
     const handleLoadNextPage = () => {
-        dispatch(loadNextPage(playlistContainer, onConnectionFailure));
+        try {
+            dispatch(loadNextPage(playlistContainer));
+        } catch (error) {
+            onConnectionFailure();
+        }
     };
 
     return (
