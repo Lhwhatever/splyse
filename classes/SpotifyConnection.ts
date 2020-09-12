@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import Paged, { SpotifyPage } from 'classes/Paged';
-import { Playlist } from 'classes/SpotifyObjects';
+import { Playlist, Track } from 'classes/SpotifyObjects';
 import querystring from 'querystring';
 
 const apiHost = 'https://api.spotify.com';
@@ -151,6 +151,24 @@ export default class SpotifyConnection {
         const fetcher = async (limit: number, offset: number) =>
             (
                 await this.get<SpotifyPage<Playlist>>('/me/playlists', {
+                    params: { limit, offset },
+                })
+            ).data;
+
+        return Paged.create(perPage, fetcher);
+    }
+
+    /**
+     * Gets the tracks within a specified playlist.
+     *
+     * @param id The Spotify ID of the playlist.
+     * @param perPage The number of playlists to fetch per page. Defaults to 100.
+     * @returns A promise of a Paged container of the playlist's tracks.
+     */
+    public async fetchPlaylistTracks(id: string, perPage = 100) {
+        const fetcher = async (limit: number, offset: number) =>
+            (
+                await this.get<SpotifyPage<Track>>(`/playlists/${id}/tracks`, {
                     params: { limit, offset },
                 })
             ).data;
