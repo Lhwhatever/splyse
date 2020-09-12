@@ -34,10 +34,11 @@ export interface ImportWizardProps {
     onClose: () => void;
     playlistContainer: Paged<Playlist> | undefined;
     onConnectionFailure: () => void;
+    onImport: () => void;
 }
 
 const ImportWizard = (props: ImportWizardProps): JSX.Element => {
-    const { open, onClose, playlistContainer, onConnectionFailure } = props;
+    const { open, onClose, playlistContainer, onConnectionFailure, onImport } = props;
 
     const [isLoading, setLoadingState] = React.useState(false);
     const [searchString, setSearchString] = React.useState<string | undefined>(undefined);
@@ -104,7 +105,7 @@ const ImportWizard = (props: ImportWizardProps): JSX.Element => {
                 )}
             </DialogContent>
             <DialogActions>
-                <Button variant="contained" color="primary">
+                <Button variant="contained" color="primary" onClick={onImport}>
                     Import
                 </Button>
             </DialogActions>
