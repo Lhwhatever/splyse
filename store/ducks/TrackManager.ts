@@ -1,11 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import SpotifyConnection from 'classes/SpotifyConnection';
-import { Playlist, Track } from 'classes/SpotifyObjects';
+import { Playlist, Track, TrackSimplified } from 'classes/SpotifyObjects';
 import { AppThunk } from 'store/store';
 import { ImportedPlaylist } from './ImportWizard';
 
 export interface StagedTrack {
-    data: Track;
+    data: TrackSimplified;
     selected: boolean;
 }
 
@@ -21,7 +21,7 @@ export interface ManagerState {
 
 export interface PlaylistAndTracks {
     playlist: Playlist;
-    tracks: Track[];
+    tracks: TrackSimplified[];
 }
 
 const initialState: ManagerState = {
@@ -45,7 +45,7 @@ const slice = createSlice({
                 action.payload.map(({ playlist, tracks }) => {
                     const playlistTracks: Record<string, StagedTrack> = {};
                     tracks.forEach((track) => {
-                        playlistTracks[track.uri] = { data: track, selected: true };
+                        playlistTracks[track.track.uri] = { data: track, selected: true };
                     });
 
                     state.playlists[playlist.uri] = {
@@ -64,12 +64,26 @@ const slice = createSlice({
                 });
             },
         },
+        selectTrackInPlaylist: {
+            prepare: (playlistUri: string, trackUri: string, selected: boolean) => ({
+                payload: { playlistUri, trackUri, selected },
+            }),
+            reducer: (state, action: PayloadAction<{ playlistUri: string; trackUri: string; selected: boolean }>) => {
+                const { playlistUri, trackUri, selected } = action.payload;
+                state.playlists[playlistUri].tracks[trackUri].selected = selected;
+            },
+        },
     },
 });
 
 export default slice.reducer;
-const { importPlaylists: _importPlaylists, setRemoveDupes, selectEntirePlaylist } = slice.actions;
-export { setRemoveDupes, selectEntirePlaylist };
+const {
+    importPlaylists: _importPlaylists,
+    setRemoveDupes,
+    selectEntirePlaylist,
+    selectTrackInPlaylist,
+} = slice.actions;
+export { setRemoveDupes, selectEntirePlaylist, selectTrackInPlaylist };
 
 export const importPlaylists = (
     playlist: ImportedPlaylist[],

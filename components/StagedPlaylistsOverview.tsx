@@ -19,7 +19,7 @@ const RightAlignedCardActions = withStyles({
 const StagedPlaylistsOverview = (props: StagedPlaylistsOverviewProps): JSX.Element => {
     const { playlists } = props;
 
-    const [activePlaylist, setActivePlaylist] = React.useState<StagedPlaylist | null>(null);
+    const [activePlaylist, setActivePlaylist] = React.useState<string | null>(null);
 
     const dispatch = useDispatch();
 
@@ -36,7 +36,7 @@ const StagedPlaylistsOverview = (props: StagedPlaylistsOverviewProps): JSX.Eleme
                       };
 
                       const handleViewTracks = () => {
-                          setActivePlaylist(playlist);
+                          setActivePlaylist(playlist.data.uri);
                       };
 
                       return (
