@@ -1,4 +1,4 @@
-import { Card, CardHeader, Checkbox, Link, makeStyles } from '@material-ui/core';
+import { Card, CardActions, CardHeader, Checkbox, Link, makeStyles } from '@material-ui/core';
 import React from 'react';
 import { ImportedPlaylist } from 'store/ducks/ImportWizard';
 
@@ -28,10 +28,11 @@ const useStyles = makeStyles((theme) => ({
 
 export type PlaylistCardProps = ImportedPlaylist & {
     onSelect: (selected: boolean) => void;
+    actionBar?: React.ReactNode;
 };
 
 const PlaylistCard = (props: PlaylistCardProps): JSX.Element => {
-    const { playlist, selected, onSelect } = props;
+    const { playlist, selected, onSelect, actionBar } = props;
 
     const classes = useStyles();
 
@@ -59,6 +60,7 @@ const PlaylistCard = (props: PlaylistCardProps): JSX.Element => {
                 }
                 className={classes.cardHeader}
             />
+            {actionBar}
         </Card>
     );
 };
