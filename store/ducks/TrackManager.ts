@@ -30,7 +30,7 @@ const initialState: ManagerState = {
 };
 
 const slice = createSlice({
-    name: 'songManager',
+    name: 'trackManager',
     initialState,
     reducers: {
         setRemoveDupes: {
@@ -55,12 +55,21 @@ const slice = createSlice({
                 });
             },
         },
+        selectEntirePlaylist: {
+            prepare: (playlistUri: string, selected: boolean) => ({ payload: { playlistUri, selected } }),
+            reducer: (state, action: PayloadAction<{ playlistUri: string; selected: boolean }>) => {
+                const { playlistUri, selected } = action.payload;
+                Object.values(state.playlists[playlistUri].tracks).forEach((track) => {
+                    track.selected = selected;
+                });
+            },
+        },
     },
 });
 
 export default slice.reducer;
-const { importPlaylists: _importPlaylists, setRemoveDupes } = slice.actions;
-export { setRemoveDupes };
+const { importPlaylists: _importPlaylists, setRemoveDupes, selectEntirePlaylist } = slice.actions;
+export { setRemoveDupes, selectEntirePlaylist };
 
 export const importPlaylists = (
     playlist: ImportedPlaylist[],

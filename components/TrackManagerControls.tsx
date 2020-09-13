@@ -1,7 +1,7 @@
 import { Box, Checkbox, FormControlLabel, makeStyles, MenuItem, TextField } from '@material-ui/core';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setRemoveDupes } from 'store/ducks/SongManager';
+import { setRemoveDupes } from 'store/ducks/TrackManager';
 import { RootState } from 'store/store';
 
 const useStyles = makeStyles((theme) => ({
@@ -11,17 +11,17 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export type SongManagerViewByMode = 'playlist';
+export type TrackManagerViewByMode = 'playlist';
 
-export interface SongManagerControlsProps {
+export interface TrackManagerControlsProps {
     viewByMode: 'playlist';
-    onViewByModeChange: (newMode: SongManagerViewByMode) => void;
+    onViewByModeChange: (newMode: TrackManagerViewByMode) => void;
 }
 
-const SongManagerControls = (props: SongManagerControlsProps): JSX.Element => {
+const TrackManagerControls = (props: TrackManagerControlsProps): JSX.Element => {
     const { viewByMode, onViewByModeChange } = props;
 
-    const { removeDupes } = useSelector((state: RootState) => state.songManager);
+    const { removeDupes } = useSelector((state: RootState) => state.trackManager);
     const dispatch = useDispatch();
 
     const handleCheckRemoveDupes = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,7 +29,7 @@ const SongManagerControls = (props: SongManagerControlsProps): JSX.Element => {
     };
 
     const handleViewByModeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        onViewByModeChange(event.target.value as SongManagerViewByMode);
+        onViewByModeChange(event.target.value as TrackManagerViewByMode);
     };
 
     const classes = useStyles();
@@ -55,4 +55,4 @@ const SongManagerControls = (props: SongManagerControlsProps): JSX.Element => {
     );
 };
 
-export default SongManagerControls;
+export default TrackManagerControls;

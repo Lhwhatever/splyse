@@ -5,17 +5,18 @@ import { Playlist } from 'classes/SpotifyObjects';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { loadFirstPage } from 'store/ducks/ImportWizard';
-import { importPlaylists } from 'store/ducks/SongManager';
+import { importPlaylists } from 'store/ducks/TrackManager';
 import { AppDispatch, RootState } from 'store/store';
 import ImportWizard from './ImportWizard';
-import SongManagerControls, { SongManagerViewByMode } from './TrackManagerControls';
+import TrackManagerControls, { TrackManagerViewByMode } from './TrackManagerControls';
+import StagedPlaylistsOverview from './StagedPlaylistsOverview';
 
-export interface SongManagerProps {
+export interface TrackManagerProps {
     connection: SpotifyConnection;
     onConnectionFailure: () => void;
 }
 
-const TrackManager = (props: SongManagerProps): JSX.Element => {
+const TrackManager = (props: TrackManagerProps): JSX.Element => {
     const { connection, onConnectionFailure } = props;
 
     const [wizardOpen, setWizardOpen] = React.useState(false);
@@ -23,9 +24,9 @@ const TrackManager = (props: SongManagerProps): JSX.Element => {
         undefined
     );
 
-    const [viewByMode, setViewByMode] = React.useState<SongManagerViewByMode>('playlist');
+    const [viewByMode, setViewByMode] = React.useState<TrackManagerViewByMode>('playlist');
 
-    const { importWizard, songManager } = useSelector((state: RootState) => state);
+    const { importWizard, trackManager } = useSelector((state: RootState) => state);
     const dispatch: AppDispatch = useDispatch();
 
     const handleImportPlaylistWizardOpen = async () => {
@@ -49,7 +50,7 @@ const TrackManager = (props: SongManagerProps): JSX.Element => {
         setWizardOpen(false);
     };
 
-    const stagedPlaylists = Object.values(songManager.playlists);
+    const stagedPlaylists = Object.values(trackManager.playlists);
 
     return (
         <Paper>
@@ -60,7 +61,7 @@ const TrackManager = (props: SongManagerProps): JSX.Element => {
                         Import Playlists
                     </Button>
                 </Box>
-                <SongManagerControls viewByMode={viewByMode} onViewByModeChange={setViewByMode} />
+                <TrackManagerControls viewByMode={viewByMode} onViewByModeChange={setViewByMode} />
                 <ImportWizard
                     open={wizardOpen}
                     onClose={handleImportPlaylistWizardClose}
@@ -68,6 +69,7 @@ const TrackManager = (props: SongManagerProps): JSX.Element => {
                     onConnectionFailure={onConnectionFailure}
                     onImport={handleImportPlaylistWizardImport}
                 />
+                <StagedPlaylistsOverview playlists={stagedPlaylists} />
             </Box>
         </Paper>
     );
