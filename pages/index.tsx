@@ -2,7 +2,7 @@ import { Box, CircularProgress, Container } from '@material-ui/core';
 import SpotifyConnection, { UserProfile } from 'classes/SpotifyConnection';
 import Alert from 'components/Alert';
 import ContentHeader from 'components/ContentHeader';
-import SongManager from 'components/SongManager';
+import TrackManager from 'components/TrackManager';
 import { SpotifyConnectButton } from 'components/Spotify';
 import User from 'components/User';
 import { useRouter } from 'next/dist/client/router';
@@ -72,7 +72,7 @@ export default function Home(): JSX.Element {
                         </Box>
                     )}
                 </Box>
-                {connection && <SongManager connection={connection} onConnectionFailure={handleConnectionFailure} />}
+                {connection && <TrackManager connection={connection} onConnectionFailure={handleConnectionFailure} />}
             </Box>
             <Alert autoHideDuration={6000} />
         </Container>

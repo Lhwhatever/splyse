@@ -1,46 +1,29 @@
-import {
-    Box,
-    Button,
-    Checkbox,
-    FormControlLabel,
-    makeStyles,
-    MenuItem,
-    Paper,
-    TextField,
-    Typography,
-} from '@material-ui/core';
+import { Box, Button, Paper, Typography } from '@material-ui/core';
 import Paged from 'classes/Paged';
 import SpotifyConnection from 'classes/SpotifyConnection';
 import { Playlist } from 'classes/SpotifyObjects';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { loadFirstPage } from 'store/ducks/ImportWizard';
-import { importPlaylists, setRemoveDupes } from 'store/ducks/SongManager';
+import { importPlaylists } from 'store/ducks/SongManager';
 import { AppDispatch, RootState } from 'store/store';
 import ImportWizard from './ImportWizard';
-
-const useStyles = makeStyles((theme) => ({
-    viewByModeSelect: {
-        marginTop: theme.spacing(1),
-        width: 120,
-    },
-}));
+import SongManagerControls, { SongManagerViewByMode } from './TrackManagerControls';
 
 export interface SongManagerProps {
     connection: SpotifyConnection;
     onConnectionFailure: () => void;
 }
 
-const SongManager = (props: SongManagerProps): JSX.Element => {
+const TrackManager = (props: SongManagerProps): JSX.Element => {
     const { connection, onConnectionFailure } = props;
-    const classes = useStyles();
 
     const [wizardOpen, setWizardOpen] = React.useState(false);
     const [importedPlaylistContainer, setImportedPlaylistContainer] = React.useState<Paged<Playlist> | undefined>(
         undefined
     );
 
-    const [viewByMode, setViewByMode] = React.useState<string>('playlist');
+    const [viewByMode, setViewByMode] = React.useState<SongManagerViewByMode>('playlist');
 
     const { importWizard, songManager } = useSelector((state: RootState) => state);
     const dispatch: AppDispatch = useDispatch();
@@ -66,15 +49,7 @@ const SongManager = (props: SongManagerProps): JSX.Element => {
         setWizardOpen(false);
     };
 
-    const handleCheckRemoveDupes = (event: React.ChangeEvent<HTMLInputElement>) => {
-        dispatch(setRemoveDupes(event.target.checked));
-    };
-
     const stagedPlaylists = Object.values(songManager.playlists);
-
-    const handleViewByModeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setViewByMode(event.target.value);
-    };
 
     return (
         <Paper>
@@ -85,23 +60,7 @@ const SongManager = (props: SongManagerProps): JSX.Element => {
                         Import Playlists
                     </Button>
                 </Box>
-                <Box p={1}>
-                    <FormControlLabel
-                        control={<Checkbox checked={songManager.removeDupes} onChange={handleCheckRemoveDupes} />}
-                        label="Remove duplicate tracks"
-                    />
-                    <TextField
-                        select
-                        label="View by..."
-                        variant="outlined"
-                        size="small"
-                        className={classes.viewByModeSelect}
-                        value={viewByMode}
-                        onChange={handleViewByModeChange}
-                    >
-                        <MenuItem value="playlist">Playlist</MenuItem>
-                    </TextField>
-                </Box>
+                <SongManagerControls viewByMode={viewByMode} onViewByModeChange={setViewByMode} />
                 <ImportWizard
                     open={wizardOpen}
                     onClose={handleImportPlaylistWizardClose}
@@ -109,10 +68,9 @@ const SongManager = (props: SongManagerProps): JSX.Element => {
                     onConnectionFailure={onConnectionFailure}
                     onImport={handleImportPlaylistWizardImport}
                 />
-                <Box p={1}>{stagedPlaylists.length || 'No tracks have been imported yet.'}</Box>
             </Box>
         </Paper>
     );
 };
 
-export default SongManager;
+export default TrackManager;
