@@ -11,7 +11,7 @@ export interface StagedTrack {
 
 export interface StagedPlaylist {
     data: Playlist;
-    tracks: StagedTrack[];
+    tracks: Record<string, StagedTrack>;
 }
 
 export interface ManagerState {
@@ -43,9 +43,14 @@ const slice = createSlice({
             prepare: (playlists: PlaylistAndTracks[]) => ({ payload: playlists }),
             reducer: (state, action: PayloadAction<PlaylistAndTracks[]>) => {
                 action.payload.map(({ playlist, tracks }) => {
+                    const playlistTracks: Record<string, StagedTrack> = {};
+                    tracks.forEach((track) => {
+                        playlistTracks[track.uri] = { data: track, selected: true };
+                    });
+
                     state.playlists[playlist.uri] = {
                         data: playlist,
-                        tracks: tracks.map((track) => ({ data: track, selected: true })),
+                        tracks: playlistTracks,
                     };
                 });
             },
