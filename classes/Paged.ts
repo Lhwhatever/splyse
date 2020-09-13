@@ -89,10 +89,10 @@ class Paged<E> {
      * errors during fetching cause the Promise to be rejected.
      */
     public async fetchAll(): Promise<E[]> {
-        const objects: E[] = [];
+        let objects: E[] = [];
 
         while (this.hasNext()) {
-            objects.concat(await this.fetchNext());
+            objects = objects.concat(await this.fetchNext());
         }
 
         return objects;
