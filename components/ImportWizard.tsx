@@ -41,7 +41,7 @@ const ImportWizard = (props: ImportWizardProps): JSX.Element => {
     const { open, onClose, playlistContainer, onConnectionFailure, onImport } = props;
 
     const [isLoading, setLoadingState] = React.useState(false);
-    const [searchString, setSearchString] = React.useState<string | undefined>(undefined);
+    const [searchString, setSearchString] = React.useState('');
 
     const dispatch: AppDispatch = useDispatch();
 
@@ -51,6 +51,7 @@ const ImportWizard = (props: ImportWizardProps): JSX.Element => {
 
     const handleQuit = () => {
         onClose();
+        setSearchString('');
     };
 
     const handleSearchStringChange = (event: React.ChangeEvent<HTMLInputElement>) => {

@@ -9,7 +9,7 @@ import { AppDispatch, RootState } from 'store/store';
 import PlaylistCard from './PlaylistCard';
 
 export interface PlaylistsOverviewProps {
-    searchString?: string;
+    searchString: string;
     playlistContainer: Paged<Playlist>;
     onConnectionFailure: () => void;
 }
@@ -24,7 +24,7 @@ const PlaylistsOverview = (props: PlaylistsOverviewProps): JSX.Element => {
     const itemsLeft = playlistContainer.length - values.length;
 
     const searcher = new FuzzySearch(values, ['playlist.name', 'playlist.owner.display_name'], { sort: true });
-    const results = searchString === undefined ? values : searcher.search(searchString);
+    const results = searchString === '' ? values : searcher.search(searchString);
 
     const handleLoadNextPage = () => {
         try {
