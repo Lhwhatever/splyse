@@ -31,7 +31,15 @@ export interface Artist {
     type: 'artist';
 }
 
+export interface Album {
+    id: string;
+    name: string;
+    type: 'album';
+    uri: string;
+}
+
 export interface Track {
+    album: Album;
     duration_ms: number;
     external_urls: ExternalUrls;
     id: string;
