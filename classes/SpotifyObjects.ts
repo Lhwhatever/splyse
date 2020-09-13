@@ -41,3 +41,9 @@ export interface Track {
     artists: Artist[];
     type: 'track';
 }
+
+export interface TrackSimplified {
+    added_at: string;
+    is_local: boolean;
+    track: Track;
+}
