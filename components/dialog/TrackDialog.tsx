@@ -12,12 +12,15 @@ import {
     useMediaQuery,
     useTheme,
 } from '@material-ui/core';
+import SearchField from 'components/SearchField';
 import TrackRow from 'components/TrackRow';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectEntirePlaylist, selectTrackInPlaylist, StagedPlaylist, StagedTrack } from 'store/ducks/TrackManager';
+import { selectEntirePlaylist } from 'store/ducks/TrackManager';
 import { RootState } from 'store/store';
+import search from 'utils/search';
 import ResponsiveWizardHeader from './ResponsiveWizardHeader';
+import StickyDialogHeader from './StickyDialogHeader';
 
 export interface TrackDialogProps {
     active: string | null;
@@ -26,6 +29,8 @@ export interface TrackDialogProps {
 
 const TrackDialog = (props: TrackDialogProps): JSX.Element => {
     const { active, onClose } = props;
+
+    const [searchString, setSearchString] = React.useState('');
 
     const { playlists } = useSelector((state: RootState) => state.trackManager);
     const playlist = active ? playlists[active] : null;
@@ -37,7 +42,14 @@ const TrackDialog = (props: TrackDialogProps): JSX.Element => {
 
     const mobile = useMediaQuery(useTheme().breakpoints.down('xs'));
 
-    const tracks = playlist && Object.values(playlist.tracks);
+    const tracks =
+        playlist &&
+        Object.values(playlist.tracks).map((track) => ({
+            ...track,
+            artistNames: track.data.track.artists.map((artist) => artist.name).join(', '),
+        }));
+
+    const results = tracks ? search(tracks, searchString, ['data.track.name', 'data.track.album', 'artistNames']) : [];
 
     const hasSelectedTracks = tracks ? tracks.some((track) => track.selected) : false;
     const hasUnselectedTracks = tracks ? tracks.some((track) => !track.selected) : false;
@@ -53,8 +65,11 @@ const TrackDialog = (props: TrackDialogProps): JSX.Element => {
             <ResponsiveWizardHeader mobile={mobile} onQuit={handleQuit}>
                 {playlist?.data.name}
             </ResponsiveWizardHeader>
-            <DialogContent>
+            <StickyDialogHeader>
                 <DialogContentText>Select tracks to analyze.</DialogContentText>
+                <SearchField value={searchString} onChange={setSearchString} />
+            </StickyDialogHeader>
+            <DialogContent>
                 <TableContainer>
                     <Table>
                         <TableHead>
@@ -72,10 +87,15 @@ const TrackDialog = (props: TrackDialogProps): JSX.Element => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {active &&
-                                tracks?.map((track) => (
+                            {active && results?.length ? (
+                                results.map((track) => (
                                     <TrackRow key={track.data.track.uri} {...track} activePlaylistUri={active} />
-                                ))}
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={3}>No tracks were found.</TableCell>
+                                </TableRow>
+                            )}
                         </TableBody>
                     </Table>
                 </TableContainer>

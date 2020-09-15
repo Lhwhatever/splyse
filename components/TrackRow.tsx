@@ -15,10 +15,11 @@ const useStyles = makeStyles((theme) => ({
 
 export type TrackRowProps = StagedTrack & {
     activePlaylistUri: string;
+    artistNames: string;
 };
 
 const TrackRow = (props: TrackRowProps): JSX.Element => {
-    const { data, selected, activePlaylistUri } = props;
+    const { data, selected, activePlaylistUri, artistNames } = props;
 
     const dispatch = useDispatch();
 
@@ -39,7 +40,7 @@ const TrackRow = (props: TrackRowProps): JSX.Element => {
             <TableCell className={classes.mainCell}>
                 <span>{data.track.name}</span>
                 <Typography variant="caption" className={classes.muted}>
-                    {data.track.artists.map((artist) => artist.name).join(', ')}
+                    {artistNames}
                     {' · '}
                     {data.track.album.name}
                 </Typography>
