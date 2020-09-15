@@ -6,6 +6,7 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { loadNextPage, selectPlaylist } from 'store/ducks/ImportWizard';
 import { AppDispatch, RootState } from 'store/store';
+import search from 'utils/search';
 import PlaylistCard from './PlaylistCard';
 
 export interface PlaylistsOverviewProps {
@@ -23,8 +24,7 @@ const PlaylistsOverview = (props: PlaylistsOverviewProps): JSX.Element => {
     const values = Object.values(playlists);
     const itemsLeft = playlistContainer.length - values.length;
 
-    const searcher = new FuzzySearch(values, ['playlist.name', 'playlist.owner.display_name'], { sort: true });
-    const results = searchString === '' ? values : searcher.search(searchString);
+    const results = search(values, searchString, ['playlist.name', 'playlist.owner.display_name']);
 
     const handleLoadNextPage = () => {
         try {
