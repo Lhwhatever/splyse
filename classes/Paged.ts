@@ -67,7 +67,8 @@ class Paged<E> {
      * errors during fetching cause the Promise to be rejected.
      */
     public async fetchNext(): Promise<E[]> {
-        if (this._buffer) {
+        // empty arrays are truthy!!
+        if (this._buffer.length) {
             const page = this._buffer;
             this._cumulative += page.length;
             this._buffer = [];
@@ -77,7 +78,7 @@ class Paged<E> {
         if (this.cumulative >= this.length) return [];
 
         const page = (await this._fetcher(this.perPage, this.cumulative)).items;
-        this._cumulative = Math.min(this.cumulative + this.perPage, this.length);
+        this._cumulative += page.length;
         return page;
     }
 

@@ -92,9 +92,12 @@ export const importPlaylists = (
     const results = await Promise.allSettled(
         playlist.map(async ({ playlist, selected }) => {
             if (!selected) throw 'not selected';
+
+            const tracksContainer = await connection.fetchPlaylistTracks(playlist.id);
+
             return {
                 playlist,
-                tracks: await (await connection.fetchPlaylistTracks(playlist.id)).fetchAll(),
+                tracks: await tracksContainer.fetchAll(),
             };
         })
     );
