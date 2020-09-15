@@ -10,6 +10,7 @@ import { AppDispatch, RootState } from 'store/store';
 import ImportWizard from './ImportWizard';
 import TrackManagerControls, { TrackManagerViewByMode } from './TrackManagerControls';
 import StagedPlaylistsOverview from './StagedPlaylistsOverview';
+import search from 'utils/search';
 
 export interface TrackManagerProps {
     connection: SpotifyConnection;
@@ -20,6 +21,7 @@ const TrackManager = (props: TrackManagerProps): JSX.Element => {
     const { connection, onConnectionFailure } = props;
 
     const [wizardOpen, setWizardOpen] = React.useState(false);
+    const [searchString, setSearchString] = React.useState('');
     const [importedPlaylistContainer, setImportedPlaylistContainer] = React.useState<Paged<Playlist> | undefined>(
         undefined
     );
@@ -51,6 +53,7 @@ const TrackManager = (props: TrackManagerProps): JSX.Element => {
     };
 
     const stagedPlaylists = Object.values(trackManager.playlists);
+    const results = search(stagedPlaylists, searchString, ['data.name', 'data.owner.display_name']);
 
     return (
         <Paper>
@@ -61,7 +64,12 @@ const TrackManager = (props: TrackManagerProps): JSX.Element => {
                         Import Playlists
                     </Button>
                 </Box>
-                <TrackManagerControls viewByMode={viewByMode} onViewByModeChange={setViewByMode} />
+                <TrackManagerControls
+                    viewByMode={viewByMode}
+                    onViewByModeChange={setViewByMode}
+                    searchString={searchString}
+                    onSearchStringChange={setSearchString}
+                />
                 <ImportWizard
                     open={wizardOpen}
                     onClose={handleImportPlaylistWizardClose}
@@ -69,7 +77,7 @@ const TrackManager = (props: TrackManagerProps): JSX.Element => {
                     onConnectionFailure={onConnectionFailure}
                     onImport={handleImportPlaylistWizardImport}
                 />
-                <StagedPlaylistsOverview playlists={stagedPlaylists} />
+                <StagedPlaylistsOverview playlists={results} />
             </Box>
         </Paper>
     );
