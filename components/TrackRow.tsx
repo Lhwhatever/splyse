@@ -14,12 +14,12 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export type TrackRowProps = StagedTrack & {
-    activePlaylistUri: string;
+    playlistUri: string;
     artistNames: string;
 };
 
 const TrackRow = (props: TrackRowProps): JSX.Element => {
-    const { data, selected, activePlaylistUri, artistNames } = props;
+    const { data, selected, playlistUri: activePlaylistUri, artistNames } = props;
 
     const dispatch = useDispatch();
 
