@@ -16,7 +16,7 @@ import SearchField from 'components/SearchField';
 import TrackRow from 'components/TrackRow';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectEntirePlaylist } from 'store/ducks/TrackManager';
+import { selectTracks } from 'store/ducks/TrackManager';
 import { RootState } from 'store/store';
 import search from 'utils/search';
 import ResponsiveWizardHeader from './ResponsiveWizardHeader';
@@ -51,12 +51,22 @@ const TrackDialog = (props: TrackDialogProps): JSX.Element => {
 
     const results = tracks ? search(tracks, searchString, ['data.track.name', 'data.track.album', 'artistNames']) : [];
 
-    const hasSelectedTracks = tracks ? tracks.some((track) => track.selected) : false;
-    const hasUnselectedTracks = tracks ? tracks.some((track) => !track.selected) : false;
+    const hasSelectedTracks = results ? results.some((track) => track.selected) : false;
+    const hasUnselectedTracks = results ? results.some((track) => !track.selected) : false;
 
     const handleMasterCheck = active
         ? (event: React.ChangeEvent<HTMLInputElement>) => {
-              dispatch(selectEntirePlaylist(active, event.target.checked));
+              if (results) {
+                  dispatch(
+                      selectTracks(
+                          results.map((track) => ({
+                              trackUri: track.data.track.uri,
+                              playlistUri: active,
+                          })),
+                          event.target.checked
+                      )
+                  );
+              }
           }
         : () => undefined;
 

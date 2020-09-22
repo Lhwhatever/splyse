@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import SpotifyConnection from 'classes/SpotifyConnection';
-import { Playlist, Track, TrackSimplified } from 'classes/SpotifyObjects';
+import { Playlist, TrackSimplified } from 'classes/SpotifyObjects';
 import { AppThunk } from 'store/store';
 import { ImportedPlaylist } from './ImportWizard';
 
@@ -22,6 +22,11 @@ export interface ManagerState {
 export interface PlaylistAndTracks {
     playlist: Playlist;
     tracks: TrackSimplified[];
+}
+
+interface SelectMultipleTrackPayload {
+    tracks: { playlistUri: string; trackUri: string }[];
+    selected: boolean;
 }
 
 const initialState: ManagerState = {
@@ -73,6 +78,17 @@ const slice = createSlice({
                 state.playlists[playlistUri].tracks[trackUri].selected = selected;
             },
         },
+        selectTracks: {
+            prepare: (tracks: { playlistUri: string; trackUri: string }[], selected: boolean) => ({
+                payload: { tracks, selected },
+            }),
+            reducer: (state, action: PayloadAction<SelectMultipleTrackPayload>) => {
+                const { tracks, selected } = action.payload;
+                tracks.forEach(({ playlistUri, trackUri }) => {
+                    state.playlists[playlistUri].tracks[trackUri].selected = selected;
+                });
+            },
+        },
     },
 });
 
@@ -82,8 +98,9 @@ const {
     setRemoveDupes,
     selectEntirePlaylist,
     selectTrackInPlaylist,
+    selectTracks,
 } = slice.actions;
-export { setRemoveDupes, selectEntirePlaylist, selectTrackInPlaylist };
+export { setRemoveDupes, selectEntirePlaylist, selectTrackInPlaylist, selectTracks };
 
 export const importPlaylists = (
     playlist: ImportedPlaylist[],
