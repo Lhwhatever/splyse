@@ -18,10 +18,10 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export type TrackManagerViewByMode = 'playlist';
+export type TrackManagerViewByMode = 'playlist' | 'track';
 
 export interface TrackManagerControlsProps {
-    viewByMode: 'playlist';
+    viewByMode: TrackManagerViewByMode;
     onViewByModeChange: (newMode: TrackManagerViewByMode) => void;
     searchString: string;
     onSearchStringChange: (searchString: string) => void;
@@ -59,6 +59,7 @@ const TrackManagerControls = (props: TrackManagerControlsProps): JSX.Element => 
                 onChange={handleViewByModeChange}
             >
                 <MenuItem value="playlist">Playlist</MenuItem>
+                <MenuItem value="track">Track</MenuItem>
             </TextField>
             <SearchField value={searchString} onChange={onSearchStringChange} />
         </Box>

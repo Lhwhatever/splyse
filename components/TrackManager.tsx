@@ -7,10 +7,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { loadFirstPage } from 'store/ducks/ImportWizard';
 import { importPlaylists } from 'store/ducks/TrackManager';
 import { AppDispatch, RootState } from 'store/store';
-import ImportWizard from './ImportWizard';
-import TrackManagerControls, { TrackManagerViewByMode } from './TrackManagerControls';
-import StagedPlaylistsOverview from './StagedPlaylistsOverview';
 import search from 'utils/search';
+import ImportWizard from './ImportWizard';
+import StagedPlaylistsOverview from './StagedPlaylistsOverview';
+import TrackManagerControls, { TrackManagerViewByMode } from './TrackManagerControls';
+import TrackTable from './TrackTable';
 
 export interface TrackManagerProps {
     connection: SpotifyConnection;
@@ -77,7 +78,21 @@ const TrackManager = (props: TrackManagerProps): JSX.Element => {
                     onConnectionFailure={onConnectionFailure}
                     onImport={handleImportPlaylistWizardImport}
                 />
-                <StagedPlaylistsOverview playlists={results} />
+                {viewByMode === 'playlist' ? (
+                    <StagedPlaylistsOverview playlists={results} />
+                ) : (
+                    <Box py={1}>
+                        <TrackTable
+                            tracks={results.flatMap(({ tracks }) =>
+                                Object.entries(tracks).map(([playlistUri, track]) => ({
+                                    playlistUri,
+                                    artistNames: track.data.track.artists.map((artist) => artist.name).join(', '),
+                                    ...track,
+                                }))
+                            )}
+                        />
+                    </Box>
+                )}
             </Box>
         </Paper>
     );
