@@ -83,12 +83,17 @@ const TrackManager = (props: TrackManagerProps): JSX.Element => {
                 ) : (
                     <Box py={1}>
                         <TrackTable
-                            tracks={results.flatMap(({ tracks }) =>
-                                Object.entries(tracks).map(([playlistUri, track]) => ({
-                                    playlistUri,
-                                    artistNames: track.data.track.artists.map((artist) => artist.name).join(', '),
-                                    ...track,
-                                }))
+                            tracks={search(
+                                stagedPlaylists.flatMap(({ data, tracks }) =>
+                                    Object.entries(tracks).map(([playlistUri, track]) => ({
+                                        playlistName: data.name,
+                                        playlistUri,
+                                        artistNames: track.data.track.artists.map((artist) => artist.name).join(', '),
+                                        ...track,
+                                    }))
+                                ),
+                                searchString,
+                                ['artistNames', 'playlistName', 'data.track.name']
                             )}
                         />
                     </Box>
