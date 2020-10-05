@@ -17,12 +17,12 @@ export function handleAuthError(errorCode: unknown, handleAlertChange: (state: A
 }
 
 export interface VerifyAuthTokensOptions {
-    accessToken: string;
+    accessToken?: string;
     refreshToken: string;
     onNewAlert: (state: Alert) => void;
     onConnectionVerification: (connection: SpotifyConnection | null) => void;
     onGettingUserProfile: (profile: UserProfile) => void;
-    onAccessTokenChange: (newToken: string) => void;
+    onAccessTokenChange?: (newToken: string) => void;
 }
 
 export async function verifyAuthTokens(options: VerifyAuthTokensOptions): Promise<void> {
@@ -44,12 +44,18 @@ export async function verifyAuthTokens(options: VerifyAuthTokensOptions): Promis
     };
 
     try {
-        const connection = await SpotifyConnection.establish({
-            accessToken,
-            refreshToken,
-            onGettingUserProfile: handleGettingUserProfile,
-            onAccessTokenChange,
-        });
+        const connection = await (accessToken === undefined
+            ? SpotifyConnection.reestablish({
+                  refreshToken,
+                  onGettingUserProfile: handleGettingUserProfile,
+                  onAccessTokenChange,
+              })
+            : SpotifyConnection.establish({
+                  accessToken,
+                  refreshToken,
+                  onGettingUserProfile: handleGettingUserProfile,
+                  onAccessTokenChange,
+              }));
 
         onConnectionVerification(connection);
     } catch (errorCode) {
