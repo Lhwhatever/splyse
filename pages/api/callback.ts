@@ -2,8 +2,8 @@ import axios from 'axios';
 import cookie from 'cookie';
 import { NextApiRequest, NextApiResponse } from 'next';
 import querystring from 'querystring';
-import { clearCookie } from 'utils/cookies';
-import { redirectUri, stateKey } from 'utils/serverside';
+import { clearCookie, setCookie, setCookies } from 'utils/cookies';
+import { accessTokenKey, errorKey, redirectUri, refreshTokenKey, stateKey } from 'utils/serverside';
 
 export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
     const code = req.query.code || null;
@@ -11,12 +11,14 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     const storedState = req.headers && req.headers.cookie ? cookie.parse(req.headers.cookie)[stateKey] : null;
 
     if (state === null || state !== storedState) {
-        res.redirect('/?' + querystring.stringify({ error: 'state_mismatch' }));
+        setCookie(res, errorKey, 'state_mismatch', { path: '/' });
+        res.redirect('/');
         return;
     }
 
     if (code === null) {
-        res.redirect('/?' + querystring.stringify({ error: req.query.error }));
+        setCookie(res, errorKey, req.query.error, { path: '/' });
+        res.redirect('/');
         return;
     }
 
@@ -45,14 +47,14 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
             throw response.status;
         }
 
-        res.redirect(
-            '/?' +
-                querystring.stringify({
-                    access_token: response.data.access_token,
-                    refresh_token: response.data.refresh_token,
-                })
-        );
+        setCookies(res, [
+            { name: accessTokenKey, value: response.data.access_token, options: { maxAge: 3600000, path: '/' } },
+            { name: refreshTokenKey, value: response.data.refresh_token, options: { maxAge: 3600000, path: '/' } },
+        ]);
+
+        res.redirect('/');
     } catch (error) {
-        res.redirect('/?' + querystring.stringify({ error: 'invalid_token' }));
+        setCookie(res, errorKey, 'invalid_token', { path: '/' });
+        res.redirect('/');
     }
 };

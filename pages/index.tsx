@@ -11,11 +11,12 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import { Alert as NonNullAlertState, setAlert } from 'store/ducks/alert';
 import { handleAuthError, verifyAuthTokens } from 'utils/auth';
+import { accessTokenKey, cookieAcknowledgementKey, errorKey, refreshTokenKey, stateKey } from 'utils/serverside';
+import { useCookies } from 'react-cookie';
 
 export default function Home(): JSX.Element {
     const [connection, setConnection] = React.useState<SpotifyConnection | null | undefined>(undefined);
     const [userProfile, setUserProfile] = React.useState<UserProfile | null>(null);
-    const router = useRouter();
 
     const dispatch = useDispatch();
 
@@ -23,39 +24,57 @@ export default function Home(): JSX.Element {
         dispatch(setAlert(alert));
     };
 
-    React.useEffect(() => {
-        if (typeof router.query.access_token === 'string' && typeof router.query.refresh_token === 'string') {
-            verifyAuthTokens({
-                accessToken: router.query.access_token,
-                refreshToken: router.query.refresh_token,
-                onNewAlert: dispatchAlert,
-                onConnectionVerification: setConnection,
-                onGettingUserProfile: setUserProfile,
-                onAccessTokenChange: (newToken) =>
-                    router.push(
-                        '/?' +
-                            querystring.stringify({ access_token: newToken, refreshToken: router.query.refresh_token })
-                    ),
-            });
-        } else if ('error' in router.query) {
-            handleAuthError(router.query.error, dispatchAlert);
-            setConnection(null);
-        } else {
-            setConnection(null);
-        }
-    }, [router, dispatch]);
+    const [cookies, setCookie, removeCookie] = useCookies([
+        accessTokenKey,
+        refreshTokenKey,
+        errorKey,
+        cookieAcknowledgementKey,
+    ]);
 
-    const handleConnectionFailure = () => {
+    const terminateConnection = () => {
         setConnection(null);
         setUserProfile(null);
-        router.push('/');
+        removeCookie(refreshTokenKey);
+    };
+
+    React.useEffect(() => {
+        if (cookies[errorKey]) {
+            // handle errors
+            handleAuthError(cookies[errorKey], dispatchAlert);
+            terminateConnection();
+        } else if (connection === null && cookies[refreshTokenKey]) {
+            // page load after authentication OR new page load with cookies
+
+            verifyAuthTokens({
+                accessToken: cookies[accessTokenKey],
+                refreshToken: cookies[refreshTokenKey],
+                onNewAlert: dispatchAlert,
+                onConnectionVerification: (c: SpotifyConnection | null) => {
+                    setConnection(c);
+                    removeCookie(accessTokenKey);
+                },
+                onGettingUserProfile: setUserProfile,
+            });
+        } else if (connection === undefined) {
+            // new page load
+            setConnection(null);
+            if (!cookies[cookieAcknowledgementKey]) {
+                dispatchAlert({
+                    severity: 'info',
+                    message: 'This site uses cookies to manage the integration with Spotify.',
+                });
+                setCookie(cookieAcknowledgementKey, 'yes');
+            }
+        }
+    }, [cookies, connection, dispatchAlert, removeCookie, setUserProfile, terminateConnection]);
+
+    const handleConnectionFailure = () => {
+        terminateConnection();
         dispatchAlert({ severity: 'error', message: 'The connection to Spotify failed. Try logging in again.' });
     };
 
     const handleLogout = () => {
-        setConnection(null);
-        setUserProfile(null);
-        router.push('/');
+        terminateConnection();
         dispatchAlert({ severity: 'success', message: 'Logged out.' });
     };
 
