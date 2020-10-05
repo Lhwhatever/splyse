@@ -17,6 +17,28 @@ export function setCookie(res: NextApiResponse, name: string, value: unknown, op
     res.setHeader('Set-Cookie', serialize(name, stringValue, options));
 }
 
+export type SetCookiesArg = {
+    name: string;
+    value: unknown;
+    options?: SetCookieOptions;
+};
+
+export function setCookies(res: NextApiResponse, args: SetCookiesArg[]): void {
+    res.setHeader(
+        'Set-Cookie',
+        args.map(({ name, value, options = {} }) => {
+            const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+
+            if (options.maxAge !== undefined) {
+                options.expires = new Date(Date.now() + options.maxAge);
+                options.maxAge /= 1000;
+            }
+
+            return serialize(name, stringValue, options);
+        })
+    );
+}
+
 export function clearCookie(res: NextApiResponse, name: string): void {
     setCookie(res, name, '', { expires: new Date(0) });
 }
