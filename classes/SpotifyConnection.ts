@@ -88,6 +88,23 @@ export default class SpotifyConnection {
         return this._accessToken;
     }
 
+    /**
+     * Like SpotifyConnection.establish, but only requires the refresh token.
+     *
+     * @param options An object containing the inputs to try establishing the
+     * connection with.
+     * @returns A Promise of the SpotifyConnection. Rejects if there was an
+     * error establishing the connection, e.g. HTTP 401 for invalid tokens.
+     */
+    public static async reestablish(options: Omit<EstablishOptions, 'accessToken'>): Promise<SpotifyConnection> {
+        const { refreshToken, onGettingUserProfile = () => undefined, onAccessTokenChange = () => undefined } = options;
+
+        const connection = new SpotifyConnection('', refreshToken, onAccessTokenChange);
+        await connection.tryRefresh();
+        onGettingUserProfile(await connection.fetchUserProfile());
+        return connection;
+    }
+
     protected async fetch<T>(endpoint?: string, config: FetchConfig = {}): Promise<FetchResult<T>> {
         const headers = { ...config.headers, Authorization: `Bearer ${this.accessToken}` };
         const { data, status } = await axios({ ...config, headers, url: endpoint ? apiRoot + endpoint : config.url });
