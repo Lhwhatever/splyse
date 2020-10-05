@@ -3,7 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 export const NO_ALERT = { severity: null };
 
 export interface Alert {
-    severity: 'error' | 'success';
+    severity: 'error' | 'success' | 'info';
     message: string;
 }
 
