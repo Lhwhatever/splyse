@@ -5,6 +5,7 @@ import { Playlist } from 'classes/SpotifyObjects';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { loadFirstPage } from 'store/ducks/ImportWizard';
+import { splyse } from 'store/ducks/results';
 import { importPlaylists } from 'store/ducks/TrackManager';
 import { AppDispatch, RootState } from 'store/store';
 import search from 'utils/search';
@@ -53,6 +54,10 @@ const TrackManager = (props: TrackManagerProps): JSX.Element => {
         setWizardOpen(false);
     };
 
+    const handleSplyse = () => {
+        dispatch(splyse(stagedPlaylists, trackManager.removeDupes));
+    };
+
     const stagedPlaylists = Object.values(trackManager.playlists);
     const results = search(stagedPlaylists, searchString, ['data.name', 'data.owner.display_name']);
 
@@ -98,6 +103,11 @@ const TrackManager = (props: TrackManagerProps): JSX.Element => {
                         />
                     </Box>
                 )}
+                <Box display="flex" justifyContent="flex-end">
+                    <Button variant="contained" color="primary" onClick={handleSplyse}>
+                        Splyse
+                    </Button>
+                </Box>
             </Box>
         </Paper>
     );
