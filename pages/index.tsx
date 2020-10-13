@@ -2,6 +2,7 @@ import { Box, CircularProgress, Container } from '@material-ui/core';
 import SpotifyConnection, { UserProfile } from 'classes/SpotifyConnection';
 import Alert from 'components/Alert';
 import ContentHeader from 'components/ContentHeader';
+import Results from 'components/Results';
 import { SpotifyConnectButton } from 'components/Spotify';
 import TrackManager from 'components/TrackManager';
 import User from 'components/User';
@@ -17,6 +18,7 @@ export default function Home(): JSX.Element {
     const [connection, setConnection] = React.useState<SpotifyConnection | null | undefined>(undefined);
     const [userProfile, setUserProfile] = React.useState<UserProfile | null>(null);
 
+    const results = useSelector((state: RootState) => state.results);
     const dispatch = useDispatch();
 
     const dispatchAlert = (alert: NonNullAlertState) => {
@@ -90,7 +92,11 @@ export default function Home(): JSX.Element {
                         </Box>
                     )}
                 </Box>
-                {connection && <TrackManager connection={connection} onConnectionFailure={handleConnectionFailure} />}
+                {results.state.complete ? (
+                    <Results results={results.state} />
+                ) : (
+                    connection && <TrackManager connection={connection} onConnectionFailure={handleConnectionFailure} />
+                )}
             </Box>
             <Alert autoHideDuration={6000} />
         </Container>
