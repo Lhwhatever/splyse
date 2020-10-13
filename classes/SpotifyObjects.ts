@@ -42,6 +42,7 @@ export interface Track {
     album: Album;
     duration_ms: number;
     external_urls: ExternalUrls;
+    explicit: boolean;
     id: string;
     uri: string;
     name: string;
