@@ -20,6 +20,7 @@
         "cookie": "^0.4.1",
         "fuzzy-search": "^3.2.1",
         "next": "9.5.2",
+        "plotly.js-dist": "^1.56.0",
         "querystring": "^0.2.0",
         "react": "16.13.1",
         "react-cookie": "^4.0.3",
