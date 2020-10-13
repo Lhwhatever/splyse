@@ -2,17 +2,16 @@ import { Box, CircularProgress, Container } from '@material-ui/core';
 import SpotifyConnection, { UserProfile } from 'classes/SpotifyConnection';
 import Alert from 'components/Alert';
 import ContentHeader from 'components/ContentHeader';
-import TrackManager from 'components/TrackManager';
 import { SpotifyConnectButton } from 'components/Spotify';
+import TrackManager from 'components/TrackManager';
 import User from 'components/User';
-import { useRouter } from 'next/dist/client/router';
-import querystring from 'querystring';
 import React from 'react';
-import { useDispatch } from 'react-redux';
-import { Alert as NonNullAlertState, setAlert } from 'store/ducks/alert';
-import { handleAuthError, verifyAuthTokens } from 'utils/auth';
-import { accessTokenKey, cookieAcknowledgementKey, errorKey, refreshTokenKey, stateKey } from 'utils/serverside';
 import { useCookies } from 'react-cookie';
+import { useDispatch, useSelector } from 'react-redux';
+import { Alert as NonNullAlertState, setAlert } from 'store/ducks/alert';
+import { RootState } from 'store/store';
+import { handleAuthError, verifyAuthTokens } from 'utils/auth';
+import { accessTokenKey, cookieAcknowledgementKey, errorKey, refreshTokenKey } from 'utils/serverside';
 
 export default function Home(): JSX.Element {
     const [connection, setConnection] = React.useState<SpotifyConnection | null | undefined>(undefined);
