@@ -20,11 +20,13 @@
         "cookie": "^0.4.1",
         "fuzzy-search": "^3.2.1",
         "next": "9.5.2",
+        "plotly.js": "^1.57.1",
         "plotly.js-dist": "^1.56.0",
         "querystring": "^0.2.0",
         "react": "16.13.1",
         "react-cookie": "^4.0.3",
         "react-dom": "16.13.1",
+        "react-plotly.js": "^2.5.0",
         "react-redux": "^7.2.1",
         "redux": "^4.0.5"
     },
