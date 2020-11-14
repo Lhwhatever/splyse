@@ -204,6 +204,12 @@ export default class SpotifyConnection {
         return result.data.audio_features;
     }
 
+    /**
+     * Gets the audio features of specified tracks.
+     *
+     * @param ids An array of the Spotify IDs of the tracks.
+     * @returns A Promise of an array of the audio features.
+     */
     public async fetchAudioFeatures(ids: string[]): Promise<AudioFeatures[]> {
         const bucketSize = Math.ceil(ids.length / Math.ceil(ids.length / 100));
         const buckets: string[][] = [];
