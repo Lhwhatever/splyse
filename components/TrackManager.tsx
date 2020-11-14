@@ -55,7 +55,7 @@ const TrackManager = (props: TrackManagerProps): JSX.Element => {
     };
 
     const handleSplyse = () => {
-        dispatch(splyse(stagedPlaylists, trackManager.removeDupes));
+        dispatch(splyse(stagedPlaylists, trackManager.removeDupes, connection.fetchAudioFeatures));
     };
 
     const stagedPlaylists = Object.values(trackManager.playlists);
