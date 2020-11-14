@@ -56,3 +56,24 @@ export interface TrackSimplified {
     is_local: boolean;
     track: Track;
 }
+
+export interface AudioFeatures {
+    type: 'audio_features';
+    acousticness: number;
+    analysis_url: string;
+    danceability: number;
+    duration_ms: number;
+    energy: number;
+    id: string;
+    instrumentalness: number;
+    key: number;
+    liveness: number;
+    loudness: number;
+    mode: 0 | 1;
+    speechiness: number;
+    tempo: number;
+    time_signature: number;
+    track_href: string;
+    uri: string;
+    valence: number;
+}

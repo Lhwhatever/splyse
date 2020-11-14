@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import Paged, { SpotifyPage } from 'classes/Paged';
-import { Playlist, TrackSimplified } from 'classes/SpotifyObjects';
+import { AudioFeatures, Playlist, TrackSimplified } from 'classes/SpotifyObjects';
 import querystring from 'querystring';
 
 const apiHost = 'https://api.spotify.com';
@@ -60,7 +60,9 @@ export default class SpotifyConnection {
         private _accessToken: string,
         public readonly refreshToken: string,
         private readonly onAccessTokenChange: (newToken: string) => void
-    ) {}
+    ) {
+        this.fetchAudioFeatures = this.fetchAudioFeatures.bind(this);
+    }
 
     /**
      * Instantiates SpotifyConnection with the given tokens and verifies
@@ -191,5 +193,26 @@ export default class SpotifyConnection {
             ).data;
 
         return Paged.create(perPage, fetcher);
+    }
+
+    private async fetchAudioFeaturesOfBucket(ids: string[]): Promise<AudioFeatures[]> {
+        const result = await this.get<{ audio_features: AudioFeatures[] }>('/audio-features', {
+            params: { ids: ids.join(',') },
+        });
+
+        if (result.status !== 200) throw result.status;
+        return result.data.audio_features;
+    }
+
+    public async fetchAudioFeatures(ids: string[]): Promise<AudioFeatures[]> {
+        const bucketSize = Math.ceil(ids.length / Math.ceil(ids.length / 100));
+        const buckets: string[][] = [];
+
+        // split the ids into buckets
+        for (let i = 0; i < ids.length; i += bucketSize) {
+            buckets.push(ids.slice(i, i + bucketSize));
+        }
+
+        return (await Promise.all(buckets.map((bucket) => this.fetchAudioFeaturesOfBucket(bucket)))).flat();
     }
 }
