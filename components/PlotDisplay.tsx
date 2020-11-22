@@ -11,7 +11,7 @@ const useStyles = makeStyles({
 });
 
 export interface PlotDisplayProps {
-    children: React.ReactElement;
+    children: React.ReactNode;
     title?: string;
 }
 
