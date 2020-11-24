@@ -127,6 +127,8 @@ const slice = createSlice({
                         });
                     });
 
+                    console.log(data);
+
                     state.state.advanced = data;
                 }
             },

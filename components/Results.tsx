@@ -74,6 +74,9 @@ const AdvancedResults = (props: AdvancedDataProp): JSX.Element => {
         speechinessPlot,
         valencePlot,
         tempoPlot,
+        modePlot,
+        timeSignaturePlot,
+        keyPlot,
     } = generateAdvancedPlots(advanced);
 
     return (
@@ -107,6 +110,15 @@ const AdvancedResults = (props: AdvancedDataProp): JSX.Element => {
             </PlotDisplay>
             <PlotDisplay title="Tempo">
                 <Plot data={tempoPlot} />
+            </PlotDisplay>
+            <PlotDisplay title="Mode">
+                <Plot data={modePlot} />
+            </PlotDisplay>
+            <PlotDisplay title="Beats per measure">
+                <Plot data={timeSignaturePlot} />
+            </PlotDisplay>
+            <PlotDisplay title="Keys">
+                <Plot data={keyPlot} />
             </PlotDisplay>
         </React.Fragment>
     );

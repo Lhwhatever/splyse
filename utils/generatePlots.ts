@@ -39,7 +39,13 @@ export interface AdvancedPlots {
     speechinessPlot: PlotData[];
     valencePlot: PlotData[];
     tempoPlot: PlotData[];
+    modePlot: PlotData[];
+    timeSignaturePlot: PlotData[];
+    keyPlot: PlotData[];
 }
+
+const timeSignatures = [3, 4, 5, 6, 7];
+const keys = ['C', 'C\u266f', 'D', 'E\u266d', 'E', 'F', 'F\u266f', 'G', 'A\u266d', 'A', 'B\u266d', 'B'];
 
 export const generateAdvancedPlots = (results: AdvancedData): AdvancedPlots => ({
     acousticnessPlot: [
@@ -94,6 +100,27 @@ export const generateAdvancedPlots = (results: AdvancedData): AdvancedPlots => (
         {
             x: results.tempo,
             type: 'histogram',
+        } as PlotData,
+    ],
+    modePlot: [
+        {
+            values: [results.mode.major, results.mode.minor, results.mode.unknown],
+            labels: ['Major', 'Minor', 'Unknown'],
+            type: 'pie',
+        } as PlotData,
+    ],
+    timeSignaturePlot: [
+        {
+            x: timeSignatures,
+            y: timeSignatures.map((beats) => results.timeSignature[beats] ?? 0),
+            type: 'bar',
+        } as PlotData,
+    ],
+    keyPlot: [
+        {
+            x: keys,
+            y: keys.map((_, i) => results.key[i] ?? 0),
+            type: 'bar',
         } as PlotData,
     ],
 });
