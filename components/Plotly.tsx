@@ -29,7 +29,7 @@ const defaultLayout = {
     legend: {
         orientation: 'h' as const,
     },
-    margin: { l: theme.spacing(2), r: theme.spacing(2), b: theme.spacing(3), t: theme.spacing(5) },
+    margin: { l: theme.spacing(3), r: theme.spacing(2), b: theme.spacing(3), t: theme.spacing(5) },
 };
 
 const Plot = (props: PlotProps) => {
